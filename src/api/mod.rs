@@ -2,10 +2,8 @@ pub mod auth;
 mod client;
 mod endpoint;
 mod error;
-mod ignore;
 mod params;
 mod query;
-mod raw;
 pub mod users;
 
 pub use client::AsyncClient;
