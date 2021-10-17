@@ -1,13 +1,13 @@
 use http::Method;
 use serde::{Deserialize, Serialize};
 
-use crate::api::Endpoint;
+use crate::{api::Endpoint, auth::Unauthenticated};
 
 #[derive(Clone, Deserialize)]
 pub struct AccessToken {
     pub access_token: String,
     pub expires_in: String,
-    //token_type: String,
+    pub token_type: String,
 }
 
 /// Traduora API token
@@ -86,4 +86,6 @@ impl Endpoint for AuthentificateRequest {
             serde_json::to_string(self)?.into_bytes(),
         )))
     }
+
+    type AccessControl = Unauthenticated;
 }

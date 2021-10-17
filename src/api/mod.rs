@@ -6,6 +6,7 @@ mod ignore;
 mod params;
 mod query;
 mod raw;
+pub mod users;
 
 pub use client::AsyncClient;
 pub use client::Client;

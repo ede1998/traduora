@@ -13,11 +13,14 @@ use http::Response;
 use url::Url;
 
 use crate::api::ApiError;
+use crate::auth::Scope;
 
 /// A trait representing a client which can communicate with a GitLab instance via REST.
 pub trait RestClient {
     /// The errors which may occur for this client.
     type Error: Error + Send + Sync + 'static;
+
+    type AccessLevel: Scope;
 
     /// Get the URL for the endpoint for the client.
     ///

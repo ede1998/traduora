@@ -18,7 +18,7 @@ use thiserror::Error;
 use url::Url;
 
 use crate::api::{self, auth::token::AccessToken, AsyncQuery, Query};
-use crate::auth::{Auth, AuthError, Login};
+use crate::auth::{AuthError, Authenticated, Login, Scope, Unauthenticated};
 
 #[derive(Debug, Error)]
 #[non_exhaustive]
@@ -78,80 +78,76 @@ type TraduoraResult<T> = Result<T, TraduoraError>;
 ///
 /// Separate users should use separate instances of this.
 #[derive(Clone)]
-pub struct Traduora {
+pub struct Traduora<A: Scope> {
     /// The client to use for API calls.
     client: Client,
     /// The base URL to use for API calls.
     rest_url: Url,
     /// The authentication information to use when communicating with Traduora.
-    token: Auth,
+    token: A,
 }
 
-impl Debug for Traduora {
+impl<A: Scope + Debug> Debug for Traduora<A> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.debug_struct("Traduora")
             .field("rest_url", &self.rest_url)
+            .field("token", &format!("{:?}", self.token))
             .finish()
     }
 }
 
-/// Should a certificate be validated in tls connections.
-/// The Insecure option is used for self-signed certificates.
-#[derive(Debug, Clone)]
-enum CertPolicy {
-    Default,
-    Insecure,
-}
-
-impl Traduora {
+impl Traduora<Unauthenticated> {
     /// Create a new Traduora API representation.
-    ///
-    /// Errors out if `auth` is invalid.
-    pub fn new<T>(host: T, auth: impl Into<Option<Login>>) -> TraduoraResult<Self>
+    pub fn new<T>(host: T) -> TraduoraResult<Self>
     where
         T: AsRef<str>,
     {
-        Self::new_impl("https", host.as_ref(), auth.into(), CertPolicy::Default)
+        TraduoraBuilder::new(host.as_ref()).build()
     }
 
     /// Create a new non-SSL Traduora API representation.
-    ///
-    /// Errors out if `auth` is invalid.
-    pub fn new_insecure<T>(host: T, auth: impl Into<Option<Login>>) -> TraduoraResult<Self>
+    pub fn new_insecure<T>(host: T) -> TraduoraResult<Self>
     where
         T: AsRef<str>,
     {
-        Self::new_impl("http", host.as_ref(), auth.into(), CertPolicy::Insecure)
+        TraduoraBuilder::new(host.as_ref())
+            .use_http(true)
+            .validate_certs(false)
+            .build()
     }
 
-    /// Internal method to create a new Traduora client.
-    fn new_impl(
-        protocol: &str,
-        host: &str,
-        auth: Option<Login>,
-        cert_validation: CertPolicy,
-    ) -> TraduoraResult<Self> {
-        let rest_url = Url::parse(&format!("{}://{}/api/v1/", protocol, host))?;
+    pub fn authenticate(self, login: &Login) -> TraduoraResult<Traduora<Authenticated>> {
+        let token: AccessToken = login.query(&self)?;
 
-        let client = match cert_validation {
-            CertPolicy::Insecure => Client::builder()
-                .danger_accept_invalid_certs(true)
-                .build()?,
-            CertPolicy::Default => Client::new(),
-        };
+        Ok(Traduora {
+            client: self.client,
+            rest_url: self.rest_url,
+            token: token.into(),
+        })
+    }
+}
 
-        let mut api = Traduora {
-            client,
-            rest_url,
-            token: Default::default(),
-        };
+impl Traduora<Authenticated> {
+    /// Create a new Traduora API representation.
+    pub fn with_auth<T>(host: T, login: Login) -> TraduoraResult<Self>
+    where
+        T: AsRef<str>,
+    {
+        TraduoraBuilder::new(host.as_ref())
+            .authenticate(login)
+            .build()
+    }
 
-        if let Some(auth) = auth {
-            let token: AccessToken = auth.query(&api)?;
-            api.token = token.into();
-        }
-
-        Ok(api)
+    /// Create a new non-SSL Traduora API representation.
+    pub fn with_auth_insecure<T>(host: T, login: Login) -> TraduoraResult<Self>
+    where
+        T: AsRef<str>,
+    {
+        TraduoraBuilder::new(host.as_ref())
+            .use_http(true)
+            .validate_certs(false)
+            .authenticate(login)
+            .build()
     }
 }
 
@@ -175,16 +171,18 @@ pub enum RestError {
     },
 }
 
-impl api::RestClient for Traduora {
+impl<A: Scope> api::RestClient for Traduora<A> {
     type Error = RestError;
 
     fn rest_endpoint(&self, endpoint: &str) -> Result<Url, api::ApiError<Self::Error>> {
         debug!(target: "gitlab", "REST api call {}", endpoint);
         Ok(self.rest_url.join(endpoint)?)
     }
+
+    type AccessLevel = A;
 }
 
-impl api::Client for Traduora {
+impl<A: Scope> api::Client for Traduora<A> {
     fn rest(
         &self,
         mut request: http::request::Builder,
@@ -213,35 +211,38 @@ impl api::Client for Traduora {
 ///
 /// Separate users should use separate instances of this.
 #[derive(Clone)]
-pub struct AsyncTraduora {
+pub struct AsyncTraduora<A: Scope> {
     /// The client to use for API calls.
     client: reqwest::Client,
     /// The base URL to use for API calls.
     rest_url: Url,
     /// The authentication information to use when communicating with Traduora.
-    token: Auth,
+    token: A,
 }
 
-impl Debug for AsyncTraduora {
+impl<A: Scope + Debug> Debug for AsyncTraduora<A> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.debug_struct("AsyncTraduora")
             .field("rest_url", &self.rest_url)
+            .field("token", &format!("{:?}", self.token))
             .finish()
     }
 }
 
 #[async_trait]
-impl api::RestClient for AsyncTraduora {
+impl<A: Scope> api::RestClient for AsyncTraduora<A> {
     type Error = RestError;
 
     fn rest_endpoint(&self, endpoint: &str) -> Result<Url, api::ApiError<Self::Error>> {
         debug!(target: "gitlab", "REST api call {}", endpoint);
         Ok(self.rest_url.join(endpoint)?)
     }
+
+    type AccessLevel = Authenticated;
 }
 
 #[async_trait]
-impl api::AsyncClient for AsyncTraduora {
+impl<A: Scope + Send + Sync> api::AsyncClient for AsyncTraduora<A> {
     async fn rest_async(
         &self,
         mut request: http::request::Builder,
@@ -266,54 +267,175 @@ impl api::AsyncClient for AsyncTraduora {
     }
 }
 
-impl AsyncTraduora {
+impl AsyncTraduora<Unauthenticated> {
     /// Create a new Traduora API representation.
-    ///
-    /// Errors out if `auth` is invalid.
-    pub async fn new<T>(host: T, auth: impl Into<Option<Login>>) -> TraduoraResult<Self>
+    pub async fn new<T>(host: T) -> TraduoraResult<Self>
     where
         T: AsRef<str>,
     {
-        Self::new_impl("https", host.as_ref(), auth.into(), CertPolicy::Default).await
+        TraduoraBuilder::new(host.as_ref()).build_async().await
     }
 
     /// Create a new non-SSL Traduora API representation.
-    ///
-    /// Errors out if `auth` is invalid.
-    pub async fn new_insecure<T>(host: T, auth: impl Into<Option<Login>>) -> TraduoraResult<Self>
+    pub async fn new_insecure<T>(host: T) -> TraduoraResult<Self>
     where
         T: AsRef<str>,
     {
-        Self::new_impl("http", host.as_ref(), auth.into(), CertPolicy::Insecure).await
+        TraduoraBuilder::new(host.as_ref())
+            .use_http(true)
+            .validate_certs(false)
+            .build_async()
+            .await
     }
 
-    /// Internal method to create a new Traduora client.
-    async fn new_impl(
-        protocol: &str,
-        host: &str,
-        auth: Option<Login>,
-        cert_validation: CertPolicy,
-    ) -> TraduoraResult<Self> {
-        let rest_url = Url::parse(&format!("{}://{}/api/v1/", protocol, host))?;
+    pub async fn authenticate(self, login: &Login) -> TraduoraResult<AsyncTraduora<Authenticated>> {
+        let token: AccessToken = login.query_async(&self).await?;
 
-        let client = match cert_validation {
-            CertPolicy::Insecure => AsyncClient::builder()
-                .danger_accept_invalid_certs(true)
-                .build()?,
-            CertPolicy::Default => AsyncClient::new(),
-        };
+        Ok(AsyncTraduora {
+            client: self.client,
+            rest_url: self.rest_url,
+            token: token.into(),
+        })
+    }
+}
 
-        let mut api = AsyncTraduora {
-            client,
-            rest_url,
-            token: Default::default(),
-        };
+impl AsyncTraduora<Authenticated> {
+    /// Create a new Traduora API representation.
+    pub async fn with_auth<T>(host: T, login: Login) -> TraduoraResult<Self>
+    where
+        T: AsRef<str>,
+    {
+        TraduoraBuilder::new(host.as_ref())
+            .authenticate(login)
+            .build_async()
+            .await
+    }
 
-        if let Some(auth) = auth {
-            let token: AccessToken = auth.query_async(&api).await?;
-            api.token = token.into();
+    /// Create a new non-SSL Traduora API representation.
+    pub async fn with_auth_insecure<T>(host: T, login: Login) -> TraduoraResult<Self>
+    where
+        T: AsRef<str>,
+    {
+        TraduoraBuilder::new(host.as_ref())
+            .use_http(true)
+            .validate_certs(false)
+            .authenticate(login)
+            .build_async()
+            .await
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct TraduoraBuilder<'h, L> {
+    host: &'h str,
+    protocol: &'static str,
+    validate_certs: bool,
+    login: L,
+}
+
+impl<'h> TraduoraBuilder<'h, ()> {
+    pub fn new(host: &'h str) -> Self {
+        Self {
+            host,
+            protocol: "https",
+            validate_certs: true,
+            login: (),
         }
+    }
+    pub fn authenticate(self, login: Login) -> TraduoraBuilder<'h, Login> {
+        TraduoraBuilder {
+            host: self.host,
+            protocol: self.protocol,
+            validate_certs: self.validate_certs,
+            login,
+        }
+    }
 
-        Ok(api)
+    pub fn with_access_token(self, token: impl Into<String>) -> TraduoraBuilder<'h, String> {
+        TraduoraBuilder {
+            host: self.host,
+            protocol: self.protocol,
+            validate_certs: self.validate_certs,
+            login: token.into(),
+        }
+    }
+
+    pub fn build(&self) -> TraduoraResult<Traduora<Unauthenticated>> {
+        self.build_unauthenticated()
+    }
+
+    pub async fn build_async(&self) -> TraduoraResult<AsyncTraduora<Unauthenticated>> {
+        self.build_unauthenticated_async()
+    }
+}
+
+impl<'h> TraduoraBuilder<'h, Login> {
+    pub fn build(&self) -> TraduoraResult<Traduora<Authenticated>> {
+        let api = self.build_unauthenticated()?;
+        api.authenticate(&self.login)
+    }
+
+    pub async fn build_async(&self) -> TraduoraResult<AsyncTraduora<Authenticated>> {
+        let api = self.build_unauthenticated_async()?;
+        api.authenticate(&self.login).await
+    }
+}
+
+impl<'h> TraduoraBuilder<'h, String> {
+    pub fn build(&self) -> TraduoraResult<Traduora<Authenticated>> {
+        let api = self.build_unauthenticated()?;
+        Ok(Traduora {
+            client: api.client,
+            rest_url: api.rest_url,
+            token: self.login.clone().into(),
+        })
+    }
+
+    pub async fn build_async(&self) -> TraduoraResult<AsyncTraduora<Authenticated>> {
+        let api = self.build_unauthenticated_async()?;
+        Ok(AsyncTraduora {
+            client: api.client,
+            rest_url: api.rest_url,
+            token: self.login.clone().into(),
+        })
+    }
+}
+
+impl<'h, L> TraduoraBuilder<'h, L> {
+    pub fn use_http(mut self, use_http: bool) -> Self {
+        self.protocol = match use_http {
+            true => "http",
+            false => "https",
+        };
+        self
+    }
+
+    pub fn validate_certs(mut self, validate: bool) -> Self {
+        self.validate_certs = validate;
+        self
+    }
+
+    fn build_rest_url(&self) -> Result<Url, url::ParseError> {
+        format!("{}://{}/api/v1/", self.protocol, self.host).parse()
+    }
+
+    fn build_unauthenticated(&self) -> TraduoraResult<Traduora<Unauthenticated>> {
+        Ok(Traduora {
+            client: Client::builder()
+                .danger_accept_invalid_certs(!self.validate_certs)
+                .build()?,
+            rest_url: self.build_rest_url()?,
+            token: Unauthenticated,
+        })
+    }
+
+    fn build_unauthenticated_async(&self) -> TraduoraResult<AsyncTraduora<Unauthenticated>> {
+        Ok(AsyncTraduora {
+            client: AsyncClient::builder()
+                .danger_accept_invalid_certs(!self.validate_certs)
+                .build()?,
+            rest_url: self.build_rest_url()?,
+            token: Unauthenticated,
+        })
     }
 }

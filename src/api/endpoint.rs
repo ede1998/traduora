@@ -10,10 +10,15 @@ use async_trait::async_trait;
 use http::{self, header, Method, Request};
 use serde::de::DeserializeOwned;
 
-use crate::api::{query, ApiError, AsyncClient, AsyncQuery, BodyError, Client, Query, QueryParams};
+use crate::{
+    api::{query, ApiError, AsyncClient, AsyncQuery, BodyError, Client, Query, QueryParams},
+    auth::Scope,
+};
 
 /// A trait for providing the necessary information for a single REST API endpoint.
 pub trait Endpoint {
+    type AccessControl: Scope;
+
     /// The HTTP method to use for the endpoint.
     fn method(&self) -> Method;
     /// The path to the endpoint.
@@ -37,11 +42,12 @@ pub trait Endpoint {
     }
 }
 
-impl<E, T, C> Query<T, C> for E
+impl<E, T, C, AL, AC> Query<T, C> for E
 where
-    E: Endpoint,
+    E: Endpoint<AccessControl = AC>,
     T: DeserializeOwned,
-    C: Client,
+    C: Client<AccessLevel = AL>,
+    AC: From<AL>,
 {
     fn query(&self, client: &C) -> Result<T, ApiError<C::Error>> {
         let mut url = client.rest_endpoint(&self.endpoint())?;
