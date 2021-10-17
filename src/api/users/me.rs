@@ -21,8 +21,10 @@ pub struct UserInfoResponse {
 }
 
 #[derive(Clone, Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct UserInfo {
     pub id: String,
     pub name: String,
     pub email: String,
+    pub num_projects_created: u64,
 }
