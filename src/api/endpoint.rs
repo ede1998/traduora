@@ -18,21 +18,12 @@ use crate::{
 /// A trait for providing the necessary information for a single REST API endpoint.
 pub trait Endpoint {
     type AccessControl: Scope;
+    type Body: DeserializeOwned;
 
     /// The HTTP method to use for the endpoint.
     fn method(&self) -> Method;
     /// The path to the endpoint.
     fn endpoint(&self) -> Cow<'static, str>;
-
-    /// Whether the endpoint is used to send secrets that should not be logged.
-    fn has_secrets(&self) -> bool {
-        false
-    }
-
-    /// Query parameters for the endpoint.
-    fn parameters(&self) -> QueryParams {
-        QueryParams::default()
-    }
 
     /// The body for the endpoint.
     ///
@@ -50,22 +41,9 @@ where
     AC: From<AL>,
 {
     fn query(&self, client: &C) -> Result<T, ApiError<C::Error>> {
-        let mut url = client.rest_endpoint(&self.endpoint())?;
-        self.parameters().add_to_url(&mut url);
-
+        let url = client.rest_endpoint(&self.endpoint())?;
         let method = self.method();
         let (mime, data) = self.body()?.unwrap_or_default();
-
-        if log::log_enabled!(log::Level::Trace) {
-            match mime.contains("application/json") && !self.has_secrets() {
-                true => log::trace!(
-                    "Request to endpoint {} with body {}",
-                    &url,
-                    String::from_utf8_lossy(&data)
-                ),
-                false => log::trace!("Request to endpoint {}", &url),
-            }
-        }
 
         let mut req = Request::builder()
             .method(method)
@@ -77,17 +55,6 @@ where
 
         let rsp = client.rest(req, data)?;
         let status = rsp.status();
-
-        if log::log_enabled!(log::Level::Trace) {
-            match is_content_type(rsp.headers(), "application/json") && !self.has_secrets() {
-                true => log::trace!(
-                    "Request to endpoint {} with body {}",
-                    &url,
-                    String::from_utf8_lossy(&rsp.body())
-                ),
-                false => log::trace!("Request to endpoint {}", &url),
-            }
-        }
 
         if status.is_server_error() {
             return Err(ApiError::server_error(status, rsp.body()));
@@ -103,13 +70,6 @@ where
     }
 }
 
-fn is_content_type(headers: &http::HeaderMap, content_type: &str) -> bool {
-    headers
-        .get(header::CONTENT_TYPE)
-        .and_then(|v| v.to_str().ok())
-        .map_or(false, |v| v.contains(content_type))
-}
-
 #[async_trait]
 impl<E, T, C> AsyncQuery<T, C> for E
 where
@@ -118,22 +78,9 @@ where
     C: AsyncClient + Sync,
 {
     async fn query_async(&self, client: &C) -> Result<T, ApiError<C::Error>> {
-        let mut url = client.rest_endpoint(&self.endpoint())?;
-        self.parameters().add_to_url(&mut url);
-
+        let url = client.rest_endpoint(&self.endpoint())?;
         let method = self.method();
         let (mime, data) = self.body()?.unwrap_or_default();
-
-        if log::log_enabled!(log::Level::Trace) {
-            match mime.contains("application/json") && !self.has_secrets() {
-                true => log::trace!(
-                    "Request to endpoint {} with body {}",
-                    &url,
-                    String::from_utf8_lossy(&data)
-                ),
-                false => log::trace!("Request to endpoint {}", &url),
-            }
-        }
 
         let mut req = Request::builder()
             .method(method)
@@ -145,17 +92,6 @@ where
 
         let rsp = client.rest_async(req, data).await?;
         let status = rsp.status();
-
-        if log::log_enabled!(log::Level::Trace)
-            && !self.has_secrets()
-            && is_content_type(rsp.headers(), "application/json")
-        {
-            log::trace!(
-                "Response from endpoint {} with body {}",
-                &url,
-                String::from_utf8_lossy(&rsp.body())
-            );
-        }
 
         if status.is_server_error() {
             return Err(ApiError::server_error(status, rsp.body()));

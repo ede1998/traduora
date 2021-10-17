@@ -1,4 +1,8 @@
-use crate::{api::Endpoint, auth::Authenticated};
+use crate::{
+    api::Endpoint,
+    auth::Authenticated,
+    fetch::{AsyncFetcher, Fetcher},
+};
 use serde::Deserialize;
 
 pub struct Me;
@@ -13,12 +17,12 @@ impl Endpoint for Me {
     fn endpoint(&self) -> std::borrow::Cow<'static, str> {
         "users/me".into()
     }
+
+    type Body = UserInfo;
 }
 
-#[derive(Clone, Debug, Deserialize)]
-pub struct UserInfoResponse {
-    pub data: UserInfo,
-}
+impl Fetcher for Me {}
+impl AsyncFetcher for Me {}
 
 #[derive(Clone, Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]

@@ -1,7 +1,12 @@
+use async_trait::async_trait;
 use http::Method;
 use serde::{Deserialize, Serialize};
 
-use crate::{api::Endpoint, auth::Unauthenticated};
+use crate::{
+    api::{AsyncQuery, Endpoint, Query},
+    auth::Unauthenticated,
+    fetch::{AsyncFetcher, Fetcher},
+};
 
 #[derive(Clone, Deserialize)]
 pub struct AccessToken {
@@ -56,12 +61,15 @@ impl AuthentificateRequest {
 impl std::fmt::Debug for AuthentificateRequest {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
-            Self::Password { mail: user, .. } => {
-                f.debug_struct("Password").field("user", user).finish()
-            }
+            Self::Password { mail, .. } => f
+                .debug_struct("Password")
+                .field("mail", mail)
+                .field("password", &"***")
+                .finish(),
             Self::ClientCredentials { client_id, .. } => f
                 .debug_struct("ClientCredentials")
                 .field("cliend_id", client_id)
+                .field("client_secret", &"***")
                 .finish(),
         }
     }
@@ -70,10 +78,6 @@ impl std::fmt::Debug for AuthentificateRequest {
 impl Endpoint for AuthentificateRequest {
     fn method(&self) -> http::Method {
         Method::POST
-    }
-
-    fn has_secrets(&self) -> bool {
-        false
     }
 
     fn endpoint(&self) -> std::borrow::Cow<'static, str> {
@@ -88,4 +92,31 @@ impl Endpoint for AuthentificateRequest {
     }
 
     type AccessControl = Unauthenticated;
+    type Body = AccessToken;
+}
+
+impl Fetcher for AuthentificateRequest {
+    fn fetch<C, AL, AC>(&self, client: &C) -> Result<Self::Body, crate::api::ApiError<C::Error>>
+    where
+        C: crate::api::Client<AccessLevel = AL>,
+        AC: From<AL>,
+        Self: Sized + Fetcher<AccessControl = AC>,
+    {
+        self.query(client)
+    }
+}
+
+#[async_trait]
+impl AsyncFetcher for AuthentificateRequest {
+    async fn fetch_async<C, AL, AC>(
+        &self,
+        client: &C,
+    ) -> Result<Self::Body, crate::api::ApiError<C::Error>>
+    where
+        C: crate::api::AsyncClient<AccessLevel = AL> + Sync,
+        AC: From<AL>,
+        Self: Sized + Sync + AsyncFetcher<AccessControl = AC>,
+    {
+        self.query_async(client).await
+    }
 }

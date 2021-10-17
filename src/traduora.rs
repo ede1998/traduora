@@ -17,8 +17,9 @@ use reqwest::Client as AsyncClient;
 use thiserror::Error;
 use url::Url;
 
-use crate::api::{self, auth::token::AccessToken, AsyncQuery, Query};
+use crate::api::{self, auth::token::AccessToken};
 use crate::auth::{AuthError, Authenticated, Login, Scope, Unauthenticated};
+use crate::{AsyncFetcher, Fetcher};
 
 #[derive(Debug, Error)]
 #[non_exhaustive]
@@ -117,7 +118,7 @@ impl Traduora<Unauthenticated> {
     }
 
     pub fn authenticate(self, login: &Login) -> TraduoraResult<Traduora<Authenticated>> {
-        let token: AccessToken = login.query(&self)?;
+        let token = login.fetch(&self)?;
 
         Ok(Traduora {
             client: self.client,
@@ -289,7 +290,7 @@ impl AsyncTraduora<Unauthenticated> {
     }
 
     pub async fn authenticate(self, login: &Login) -> TraduoraResult<AsyncTraduora<Authenticated>> {
-        let token: AccessToken = login.query_async(&self).await?;
+        let token = login.fetch_async(&self).await?;
 
         Ok(AsyncTraduora {
             client: self.client,
