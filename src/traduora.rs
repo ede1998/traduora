@@ -249,15 +249,15 @@ impl<A: Scope + Send + Sync> api::AsyncClient for AsyncTraduora<A> {
 
 impl AsyncTraduora<Unauthenticated> {
     /// Create a new Traduora API representation.
-    pub async fn new<T>(host: T) -> TraduoraResult<Self>
+    pub fn new<T>(host: T) -> TraduoraResult<Self>
     where
         T: AsRef<str>,
     {
-        Builder::new(host.as_ref()).build_async().await
+        Builder::new(host.as_ref()).build_async()
     }
 
     /// Create a new non-SSL Traduora API representation.
-    pub async fn new_insecure<T>(host: T) -> TraduoraResult<Self>
+    pub fn new_insecure<T>(host: T) -> TraduoraResult<Self>
     where
         T: AsRef<str>,
     {
@@ -265,7 +265,6 @@ impl AsyncTraduora<Unauthenticated> {
             .use_http(true)
             .validate_certs(false)
             .build_async()
-            .await
     }
 
     pub async fn authenticate(self, login: &Login) -> TraduoraResult<AsyncTraduora<Authenticated>> {
@@ -283,7 +282,7 @@ impl AsyncTraduora<Authenticated> {
     /// Create a new Traduora API representation.
     pub async fn with_auth<T>(host: T, login: Login) -> TraduoraResult<Self>
     where
-        T: AsRef<str>,
+        T: AsRef<str> + Sync + Send + 'static,
     {
         Builder::new(host.as_ref())
             .authenticate(login)
@@ -294,7 +293,7 @@ impl AsyncTraduora<Authenticated> {
     /// Create a new non-SSL Traduora API representation.
     pub async fn with_auth_insecure<T>(host: T, login: Login) -> TraduoraResult<Self>
     where
-        T: AsRef<str>,
+        T: AsRef<str> + Sync + Send + 'static,
     {
         Builder::new(host.as_ref())
             .use_http(true)
@@ -315,7 +314,7 @@ pub struct Builder<'h, L> {
 }
 
 impl<'h> Builder<'h, ()> {
-    pub fn new(host: &'h str) -> Self {
+    pub const fn new(host: &'h str) -> Self {
         Self {
             host,
             protocol: "https",
@@ -324,7 +323,7 @@ impl<'h> Builder<'h, ()> {
         }
     }
 
-    pub fn authenticate(self, login: Login) -> Builder<'h, Login> {
+    pub const fn authenticate(self, login: Login) -> Builder<'h, Login> {
         Builder {
             host: self.host,
             protocol: self.protocol,
@@ -346,7 +345,7 @@ impl<'h> Builder<'h, ()> {
         self.build_unauthenticated()
     }
 
-    pub async fn build_async(&self) -> TraduoraResult<AsyncTraduora<Unauthenticated>> {
+    pub fn build_async(&self) -> TraduoraResult<AsyncTraduora<Unauthenticated>> {
         self.build_unauthenticated_async()
     }
 }
@@ -384,12 +383,12 @@ impl<'h> Builder<'h, String> {
 }
 
 impl<'h, L> Builder<'h, L> {
-    pub fn use_http(mut self, use_http: bool) -> Self {
+    pub const fn use_http(mut self, use_http: bool) -> Self {
         self.protocol = if use_http { "http" } else { "https" };
         self
     }
 
-    pub fn validate_certs(mut self, validate: bool) -> Self {
+    pub const fn validate_certs(mut self, validate: bool) -> Self {
         self.validate_certs = validate;
         self
     }

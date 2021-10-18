@@ -98,7 +98,7 @@ where
 {
     /// Create an API error in a client error.
     pub fn client(source: E) -> Self {
-        ApiError::Client { source }
+        Self::Client { source }
     }
 
     /// Wrap a client error in another wrapper.
@@ -134,17 +134,17 @@ where
 
         match error_value {
             Some(error_value) => match error_value.as_str() {
-                Some(msg) => ApiError::Gitlab { msg: msg.into() },
-                None => ApiError::GitlabObject {
+                Some(msg) => Self::Gitlab { msg: msg.into() },
+                None => Self::GitlabObject {
                     obj: error_value.clone(),
                 },
             },
-            None => ApiError::GitlabUnrecognized { obj: value },
+            None => Self::GitlabUnrecognized { obj: value },
         }
     }
 
     pub(crate) fn data_type<T>(source: serde_json::Error) -> Self {
-        ApiError::DataType {
+        Self::DataType {
             source,
             typename: any::type_name::<T>(),
         }
