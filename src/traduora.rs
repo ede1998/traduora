@@ -18,7 +18,7 @@ use url::Url;
 
 use crate::api;
 use crate::auth::{AuthError, Authenticated, Login, Scope, Unauthenticated};
-use crate::{AsyncFetcher, Fetcher};
+use crate::query::{AsyncQuery, Query};
 
 #[derive(Debug, Error)]
 #[non_exhaustive]
@@ -99,8 +99,8 @@ impl Traduora<Unauthenticated> {
             .build()
     }
 
-    pub fn authenticate(self, login: &Login) -> TraduoraResult<Traduora<Authenticated>> {
-        let token = login.fetch(&self)?;
+    pub fn authenticate(self, login: Login) -> TraduoraResult<Traduora<Authenticated>> {
+        let token = login.query(&self)?;
 
         Ok(Traduora {
             client: self.client,
@@ -267,8 +267,8 @@ impl AsyncTraduora<Unauthenticated> {
             .build_async()
     }
 
-    pub async fn authenticate(self, login: &Login) -> TraduoraResult<AsyncTraduora<Authenticated>> {
-        let token = login.fetch_async(&self).await?;
+    pub async fn authenticate(self, login: Login) -> TraduoraResult<AsyncTraduora<Authenticated>> {
+        let token = login.query_async(&self).await?;
 
         Ok(AsyncTraduora {
             client: self.client,
@@ -351,14 +351,14 @@ impl<'h> Builder<'h, ()> {
 }
 
 impl<'h> Builder<'h, Login> {
-    pub fn build(&self) -> TraduoraResult<Traduora<Authenticated>> {
+    pub fn build(self) -> TraduoraResult<Traduora<Authenticated>> {
         let api = self.build_unauthenticated()?;
-        api.authenticate(&self.login)
+        api.authenticate(self.login)
     }
 
-    pub async fn build_async(&self) -> TraduoraResult<AsyncTraduora<Authenticated>> {
+    pub async fn build_async(self) -> TraduoraResult<AsyncTraduora<Authenticated>> {
         let api = self.build_unauthenticated_async()?;
-        api.authenticate(&self.login).await
+        api.authenticate(self.login).await
     }
 }
 

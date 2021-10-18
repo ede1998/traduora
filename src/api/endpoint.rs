@@ -12,7 +12,7 @@ use http::{self, header, request::Builder, Method, Request, Response};
 use serde::de::DeserializeOwned;
 
 use crate::{
-    api::{query, ApiError, AsyncClient, AsyncQuery, BodyError, Client, Query},
+    api::{custom_query, ApiError, AsyncClient, AsyncCustomQuery, BodyError, Client, CustomQuery},
     auth::Scope,
 };
 
@@ -21,7 +21,6 @@ use super::RestClient;
 /// A trait for providing the necessary information for a single REST API endpoint.
 pub trait Endpoint {
     type AccessControl: Scope;
-    type Body: DeserializeOwned;
 
     /// The HTTP method to use for the endpoint.
     fn method(&self) -> Method;
@@ -36,45 +35,46 @@ pub trait Endpoint {
     }
 }
 
-impl<E, T, C> Query<T, C> for E
+impl<E, T, C> CustomQuery<T, C> for E
 where
     E: Endpoint,
     T: DeserializeOwned,
     C: Client,
     E::AccessControl: From<C::AccessLevel>,
 {
-    fn query(&self, client: &C) -> Result<T, ApiError<C::Error>> {
+    fn query_custom(&self, client: &C) -> Result<T, ApiError<C::Error>> {
         let (req, data) = build_request_with_body(self, client)?;
         let rsp = client.rest(req, data)?;
-        process_response(&rsp)
+        process_response(&rsp, serde_json::from_value)
     }
 }
 
 #[async_trait]
-impl<E, T, C> AsyncQuery<T, C> for E
+impl<E, T, C> AsyncCustomQuery<T, C> for E
 where
     E: Endpoint + Sync,
     T: DeserializeOwned + 'static,
     C: AsyncClient + Sync,
     E::AccessControl: From<C::AccessLevel>,
 {
-    async fn query_async(&self, client: &C) -> Result<T, ApiError<C::Error>> {
+    async fn query_custom_async(&self, client: &C) -> Result<T, ApiError<C::Error>> {
         let (req, data) = build_request_with_body(self, client)?;
         let rsp = client.rest_async(req, data).await?;
-        process_response(&rsp)
+        process_response(&rsp, serde_json::from_value)
     }
 }
 
-fn process_response<T, E>(rsp: &Response<Bytes>) -> Result<T, ApiError<E>>
+pub(crate) fn process_response<T, E, F>(rsp: &Response<Bytes>, mapper: F) -> Result<T, ApiError<E>>
 where
     T: DeserializeOwned,
     E: std::error::Error + Send + Sync + 'static,
+    F: FnOnce(serde_json::Value) -> Result<T, serde_json::Error>,
 {
     if rsp.status().is_success() {
         // try to parse as general JSON or give general parse error
         let v = serde_json::from_slice(rsp.body())?;
         // map to desired rust type or give type mapping error
-        serde_json::from_value::<T>(v).map_err(ApiError::data_type::<T>)
+        mapper(v).map_err(ApiError::data_type::<T>)
     } else {
         // try to parse error as JSON or give general error
         let v = serde_json::from_slice(rsp.body())
@@ -84,7 +84,7 @@ where
     }
 }
 
-fn build_request_with_body<E, C>(
+pub(crate) fn build_request_with_body<E, C>(
     endpoint: &E,
     client: &C,
 ) -> Result<(Builder, Vec<u8>), ApiError<C::Error>>
@@ -95,7 +95,7 @@ where
     let url = client.rest_endpoint(&endpoint.endpoint())?;
     let req = Request::builder()
         .method(endpoint.method())
-        .uri(query::url_to_http_uri(&url));
+        .uri(custom_query::url_to_http_uri(&url));
 
     Ok(match endpoint.body()? {
         Some((mime, body)) => (req.header(header::CONTENT_TYPE, mime), body),

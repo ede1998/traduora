@@ -1,12 +1,7 @@
-use async_trait::async_trait;
 use http::Method;
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    api::{AsyncQuery, Endpoint, Query},
-    auth::Unauthenticated,
-    fetch::{AsyncFetcher, Fetcher},
-};
+use crate::{api::Endpoint, auth::Unauthenticated, query::DefaultModel};
 
 #[derive(Clone, Deserialize)]
 pub struct AccessToken {
@@ -92,31 +87,12 @@ impl Endpoint for AuthentificateRequest {
     }
 
     type AccessControl = Unauthenticated;
-    type Body = AccessToken;
 }
 
-impl Fetcher for AuthentificateRequest {
-    fn fetch<C, AL, AC>(&self, client: &C) -> Result<Self::Body, crate::api::ApiError<C::Error>>
-    where
-        C: crate::api::Client<AccessLevel = AL>,
-        AC: From<AL>,
-        Self: Sized + Fetcher<AccessControl = AC>,
-    {
-        self.query(client)
-    }
-}
+impl DefaultModel for AuthentificateRequest {
+    type Model = AccessToken;
 
-#[async_trait]
-impl AsyncFetcher for AuthentificateRequest {
-    async fn fetch_async<C, AL, AC>(
-        &self,
-        client: &C,
-    ) -> Result<Self::Body, crate::api::ApiError<C::Error>>
-    where
-        C: crate::api::AsyncClient<AccessLevel = AL> + Sync,
-        AC: From<AL>,
-        Self: Sized + Sync + AsyncFetcher<AccessControl = AC>,
-    {
-        self.query_async(client).await
+    fn map(data: serde_json::Value) -> Result<Self::Model, serde_json::Error> {
+        serde_json::from_value(data)
     }
 }

@@ -1,9 +1,9 @@
 pub mod api;
 pub mod auth;
-mod fetch;
+mod query;
 mod traduora;
 
-pub use fetch::{AsyncFetcher, Fetcher};
+pub use query::{AsyncQuery, Query};
 pub use traduora::AsyncTraduora;
 pub use traduora::Builder as TraduoraBuilder;
 pub use traduora::Traduora;
