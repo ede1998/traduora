@@ -36,12 +36,12 @@ pub trait Endpoint {
     }
 }
 
-impl<E, T, C, AL, AC> Query<T, C> for E
+impl<E, T, C> Query<T, C> for E
 where
-    E: Endpoint<AccessControl = AC>,
+    E: Endpoint,
     T: DeserializeOwned,
-    C: Client<AccessLevel = AL>,
-    AC: From<AL>,
+    C: Client,
+    E::AccessControl: From<C::AccessLevel>,
 {
     fn query(&self, client: &C) -> Result<T, ApiError<C::Error>> {
         let (req, data) = build_request_with_body(self, client)?;
@@ -56,6 +56,7 @@ where
     E: Endpoint + Sync,
     T: DeserializeOwned + 'static,
     C: AsyncClient + Sync,
+    E::AccessControl: From<C::AccessLevel>,
 {
     async fn query_async(&self, client: &C) -> Result<T, ApiError<C::Error>> {
         let (req, data) = build_request_with_body(self, client)?;
