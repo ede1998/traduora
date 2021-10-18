@@ -7,13 +7,16 @@
 use std::borrow::Cow;
 
 use async_trait::async_trait;
-use http::{self, header, Method, Request};
+use bytes::Bytes;
+use http::{self, header, request::Builder, Method, Request, Response};
 use serde::de::DeserializeOwned;
 
 use crate::{
-    api::{query, ApiError, AsyncClient, AsyncQuery, BodyError, Client, Query, QueryParams},
+    api::{query, ApiError, AsyncClient, AsyncQuery, BodyError, Client, Query},
     auth::Scope,
 };
+
+use super::RestClient;
 
 /// A trait for providing the necessary information for a single REST API endpoint.
 pub trait Endpoint {
@@ -41,32 +44,9 @@ where
     AC: From<AL>,
 {
     fn query(&self, client: &C) -> Result<T, ApiError<C::Error>> {
-        let url = client.rest_endpoint(&self.endpoint())?;
-        let method = self.method();
-        let (mime, data) = self.body()?.unwrap_or_default();
-
-        let mut req = Request::builder()
-            .method(method)
-            .uri(query::url_to_http_uri(&url));
-
-        if mime != "" {
-            req = req.header(header::CONTENT_TYPE, mime);
-        }
-
+        let (req, data) = build_request_with_body(self, client)?;
         let rsp = client.rest(req, data)?;
-        let status = rsp.status();
-
-        if status.is_server_error() {
-            return Err(ApiError::server_error(status, rsp.body()));
-        }
-
-        let v = serde_json::from_slice(rsp.body())?;
-
-        if !status.is_success() {
-            return Err(ApiError::from_gitlab(v));
-        }
-
-        serde_json::from_value::<T>(v).map_err(ApiError::data_type::<T>)
+        process_response(rsp)
     }
 }
 
@@ -78,33 +58,51 @@ where
     C: AsyncClient + Sync,
 {
     async fn query_async(&self, client: &C) -> Result<T, ApiError<C::Error>> {
-        let url = client.rest_endpoint(&self.endpoint())?;
-        let method = self.method();
-        let (mime, data) = self.body()?.unwrap_or_default();
-
-        let mut req = Request::builder()
-            .method(method)
-            .uri(query::url_to_http_uri(&url));
-
-        if mime != "" {
-            req = req.header(header::CONTENT_TYPE, mime);
-        }
-
+        let (req, data) = build_request_with_body(self, client)?;
         let rsp = client.rest_async(req, data).await?;
-        let status = rsp.status();
-
-        if status.is_server_error() {
-            return Err(ApiError::server_error(status, rsp.body()));
-        }
-
-        let v = serde_json::from_slice(rsp.body())?;
-
-        if !status.is_success() {
-            return Err(ApiError::from_gitlab(v));
-        }
-
-        serde_json::from_value::<T>(v).map_err(ApiError::data_type::<T>)
+        process_response(rsp)
     }
+}
+
+fn process_response<T, E>(rsp: Response<Bytes>) -> Result<T, ApiError<E>>
+where
+    T: DeserializeOwned,
+    E: std::error::Error + Send + Sync + 'static,
+{
+    match rsp.status().is_success() {
+        true => {
+            // try to parse as general JSON or give general parse error
+            let v = serde_json::from_slice(rsp.body())?;
+            // map to desired rust type or give type mapping error
+            serde_json::from_value::<T>(v).map_err(ApiError::data_type::<T>)
+        }
+        false => {
+            // try to parse error as JSON or give general error
+            let v = serde_json::from_slice(rsp.body())
+                .map_err(|_| ApiError::server_error(rsp.status(), rsp.body()))?;
+            // give specific error message
+            Err(ApiError::from_gitlab(v))
+        }
+    }
+}
+
+fn build_request_with_body<E, C>(
+    endpoint: &E,
+    client: &C,
+) -> Result<(Builder, Vec<u8>), ApiError<C::Error>>
+where
+    E: Endpoint,
+    C: RestClient,
+{
+    let url = client.rest_endpoint(&endpoint.endpoint())?;
+    let req = Request::builder()
+        .method(endpoint.method())
+        .uri(query::url_to_http_uri(&url));
+
+    Ok(match endpoint.body()? {
+        Some((mime, body)) => (req.header(header::CONTENT_TYPE, mime), body),
+        None => (req, Vec::new()),
+    })
 }
 
 /*

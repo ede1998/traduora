@@ -43,7 +43,7 @@ where
         source: url::ParseError,
     },
     /// Body data could not be created.
-    #[error("failed to create form data: {}", source)]
+    #[error("failed to create request body: {}", source)]
     Body {
         /// The source of the error.
         #[from]

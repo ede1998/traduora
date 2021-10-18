@@ -174,13 +174,12 @@ pub enum RestError {
 
 impl<A: Scope> api::RestClient for Traduora<A> {
     type Error = RestError;
+    type AccessLevel = A;
 
     fn rest_endpoint(&self, endpoint: &str) -> Result<Url, api::ApiError<Self::Error>> {
         debug!(target: "gitlab", "REST api call {}", endpoint);
         Ok(self.rest_url.join(endpoint)?)
     }
-
-    type AccessLevel = A;
 }
 
 impl<A: Scope> api::Client for Traduora<A> {
