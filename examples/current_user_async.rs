@@ -1,8 +1,8 @@
 use simple_logger::SimpleLogger;
 use traduora::api::users::me::Me;
-use traduora::auth::Login;
 use traduora::AsyncQuery;
 use traduora::AsyncTraduora;
+use traduora::Login;
 use traduora::TraduoraError;
 
 #[tokio::main]

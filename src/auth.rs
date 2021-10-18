@@ -1,9 +1,21 @@
-use std::fmt::Debug;
+//! Permission levels.
+//!
+//! Types that implement the trait [Scope] represent a particular permission level.
+//! Currently there are only two distinct levels:
+//! * [Unauthenticated]
+//! * [Authenticated]
+//!
+//! For a client, a higher access level allows it to access more endpoints.
+//! For an endpoint, a higher access level prevents it from being accessed by
+//! more clients.
+//!
+//! Having distinct types for the different scopes allows compile-time permission checks.
 
 use http::{HeaderMap, HeaderValue};
+use std::fmt::Debug;
 use thiserror::Error;
 
-use crate::api::auth::token::{AccessToken, AuthentificateRequest};
+use crate::api::auth::token::AccessToken;
 
 #[derive(Debug, Error)]
 #[non_exhaustive]
@@ -16,23 +28,22 @@ pub enum AuthError {
 }
 
 /// Determines the permissions of a client.
+/// What endpoints a client may access depends on its scope.
 pub trait Scope {
     /// Adds the appropriate header to a set of headers.
     ///
-    /// Depending on the token type, this will be either the Private-Token header
-    /// or the Authorization header.
+    /// Depending on the token type, this will be either no header or the Authorization header.
     ///
     /// Returns an error if the token string cannot be parsed as a header value.
     fn set_header<'a>(&self, headers: &'a mut HeaderMap) -> Result<&'a mut HeaderMap, AuthError>;
 }
-
-pub type Login = AuthentificateRequest;
 
 /// Client is authenticated and has an access token.
 /// This allows calling all endpoints, including those that need authorization.
 pub struct Authenticated(String);
 
 /// Client is not authenticated. This means only a small subset of endpoints are available.
+/// An endpoint with this scope can be queried without authentification.
 pub struct Unauthenticated;
 
 impl Scope for Authenticated {
@@ -52,18 +63,25 @@ impl Scope for Unauthenticated {
 }
 
 impl From<Authenticated> for Unauthenticated {
+    /// Downgrades an [Authenticated] scope to an [Unauthenticated] one.
+    ///
+    /// This method is mostly used for compile time type checking to
+    /// ensure that an endpoint that requires authentification cannot be
+    /// called before having acquired the authentification.
     fn from(_: Authenticated) -> Self {
         Unauthenticated
     }
 }
 
 impl From<AccessToken> for Authenticated {
+    /// Constructs a new [Authenticated] scope from the given token.
     fn from(f: AccessToken) -> Self {
         Self(f.access_token)
     }
 }
 
 impl From<String> for Authenticated {
+    /// Constructs a new [Authenticated] scope from the given token string.
     fn from(f: String) -> Self {
         Self(f)
     }

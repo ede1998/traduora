@@ -1,9 +1,3 @@
-// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
-// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
-// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
-// option. This file may not be copied, modified, or distributed
-// except according to those terms.
-
 use std::borrow::Cow;
 
 use async_trait::async_trait;
@@ -12,7 +6,7 @@ use http::{self, header, request::Builder, Method, Request, Response};
 use serde::de::DeserializeOwned;
 
 use crate::{
-    api::{custom_query, ApiError, AsyncClient, AsyncCustomQuery, BodyError, Client, CustomQuery},
+    api::{ApiError, AsyncClient, AsyncCustomQuery, BodyError, Client, CustomQuery},
     auth::Scope,
 };
 
@@ -92,10 +86,13 @@ where
     E: Endpoint,
     C: RestClient,
 {
-    let url = client.rest_endpoint(&endpoint.endpoint())?;
-    let req = Request::builder()
-        .method(endpoint.method())
-        .uri(custom_query::url_to_http_uri(&url));
+    let uri = client
+        .rest_endpoint(&endpoint.endpoint())?
+        .as_str()
+        .parse::<http::Uri>()
+        .expect("failed to parse a url::Url as an http::Uri");
+
+    let req = Request::builder().method(endpoint.method()).uri(uri);
 
     Ok(match endpoint.body()? {
         Some((mime, body)) => (req.header(header::CONTENT_TYPE, mime), body),

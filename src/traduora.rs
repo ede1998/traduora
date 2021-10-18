@@ -17,8 +17,9 @@ use thiserror::Error;
 use url::Url;
 
 use crate::api;
-use crate::auth::{AuthError, Authenticated, Login, Scope, Unauthenticated};
+use crate::auth::{AuthError, Authenticated, Scope, Unauthenticated};
 use crate::query::{AsyncQuery, Query};
+use crate::Login;
 
 #[derive(Debug, Error)]
 #[non_exhaustive]

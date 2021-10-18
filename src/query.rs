@@ -1,3 +1,5 @@
+//! See type level explanations, especially [Query] or [AsyncQuery].
+
 use async_trait::async_trait;
 use serde::de::DeserializeOwned;
 use serde::Deserialize;
@@ -6,9 +8,16 @@ use serde_json::Value;
 use crate::api::endpoint;
 use crate::api::{ApiError, AsyncClient, AsyncCustomQuery, Client, CustomQuery, Endpoint};
 
+/// This trait defines the type that an endpoint
+/// should deserialize to by default.
 pub trait DefaultModel: Endpoint {
     type Model: DeserializeOwned;
 
+    /// This mapping function parses a [Value] to [Self::Model].
+    ///
+    /// The default implementation parses the value into a model that is wrapped
+    /// in a "data" object. Most Traduora endpoints return their answer in this
+    /// form. A notable exception is [crate::api::auth::token::AuthenticateRequest].
     fn map(data: Value) -> Result<Self::Model, serde_json::Error> {
         #[derive(Deserialize)]
         #[serde(bound = "T: DeserializeOwned")]
@@ -51,18 +60,30 @@ where
     }
 }
 
+/// A trait which represents a query which may be made to a Traduora client.
+///
+/// The returned model should be a full representation of the data that this
+/// endpoint can return. For more fine-grained control of the deserialized model,
+/// see [CustomQuery].
 pub trait Query<C>: DefaultModel
 where
     C: Client,
 {
+    /// Perform the query against the client.
     fn query(&self, client: &C) -> Result<Self::Model, ApiError<C::Error>>;
 }
 
+/// A trait which represents a asynchronous query which may be made to a Traduora client.
+///
+/// The returned model should be a full representation of the data that this
+/// endpoint can return. For more fine-grained control of the deserialized model,
+/// see [AsyncCustomQuery].
 #[async_trait]
 pub trait AsyncQuery<C>: DefaultModel
 where
     C: AsyncClient,
 {
+    /// Perform the query against the client asynchronously.
     async fn query_async(&self, client: &C) -> Result<Self::Model, ApiError<C::Error>>;
 }
 

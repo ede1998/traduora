@@ -1,15 +1,8 @@
-// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
-// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
-// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
-// option. This file may not be copied, modified, or distributed
-// except according to those terms.
-
-use std::error::Error;
-
 use async_trait::async_trait;
 use bytes::Bytes;
 use http::request::Builder as RequestBuilder;
 use http::Response;
+use std::error::Error;
 use url::Url;
 
 use crate::api::ApiError;
@@ -20,6 +13,7 @@ pub trait RestClient {
     /// The errors which may occur for this client.
     type Error: Error + Send + Sync + 'static;
 
+    /// The permission level the user has.
     type AccessLevel: Scope;
 
     /// Get the URL for the endpoint for the client.

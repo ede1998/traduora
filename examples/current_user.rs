@@ -1,6 +1,6 @@
 use simple_logger::SimpleLogger;
 use traduora::api::users::me::Me;
-use traduora::auth::Login;
+use traduora::Login;
 use traduora::Query;
 use traduora::Traduora;
 use traduora::TraduoraError;

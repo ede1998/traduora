@@ -1,22 +1,14 @@
-// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
-// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
-// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
-// option. This file may not be copied, modified, or distributed
-// except according to those terms.
-
 use async_trait::async_trait;
-use http::Uri;
-use url::Url;
 
 use crate::api::{ApiError, AsyncClient, Client};
 
-pub fn url_to_http_uri(url: &Url) -> Uri {
-    url.as_str()
-        .parse::<Uri>()
-        .expect("failed to parse a url::Url as an http::Uri")
-}
-
-/// A trait which represents a query which may be made to a GitLab client.
+/// A trait which represents a query which may be made to a Traduora client.
+///
+/// This is the more general version of [crate::Query] because it allows the caller
+/// of the trait to chose the type to deserialize to.
+/// The distinction is useful to prevent deserialization of fields that the caller is not
+/// interested in or to allow deserialization when the Traduora instance returns an
+/// unexpected model.
 pub trait CustomQuery<T, C>
 where
     C: Client,
@@ -25,7 +17,13 @@ where
     fn query_custom(&self, client: &C) -> Result<T, ApiError<C::Error>>;
 }
 
-/// A trait which represents an asynchronous query which may be made to a GitLab client.
+/// A trait which represents an asynchronous query which may be made to a Traduora client.
+///
+/// This is the more general version of [crate::AsyncQuery] because it allows the caller
+/// of the trait to chose the type to deserialize to.
+/// The distinction is useful to prevent deserialization of fields that the caller is not
+/// interested in or to allow deserialization when the Traduora instance returns an
+/// unexpected model.
 #[async_trait]
 pub trait AsyncCustomQuery<T, C>
 where
