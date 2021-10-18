@@ -4,7 +4,6 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use std::any;
 use std::convert::TryInto;
 use std::fmt::{self, Debug};
 
@@ -17,7 +16,7 @@ use reqwest::Client as AsyncClient;
 use thiserror::Error;
 use url::Url;
 
-use crate::api::{self, auth::token::AccessToken};
+use crate::api;
 use crate::auth::{AuthError, Authenticated, Login, Scope, Unauthenticated};
 use crate::{AsyncFetcher, Fetcher};
 
@@ -56,23 +55,6 @@ pub enum TraduoraError {
     },
 }
 
-impl TraduoraError {
-    fn http(status: reqwest::StatusCode) -> Self {
-        TraduoraError::Http { status }
-    }
-
-    fn no_response() -> Self {
-        TraduoraError::NoResponse {}
-    }
-
-    fn data_type<T>(source: serde_json::Error) -> Self {
-        TraduoraError::DataType {
-            source,
-            typename: any::type_name::<T>(),
-        }
-    }
-}
-
 type TraduoraResult<T> = Result<T, TraduoraError>;
 
 /// A representation of the Traduora API for a single user.
@@ -103,7 +85,7 @@ impl Traduora<Unauthenticated> {
     where
         T: AsRef<str>,
     {
-        TraduoraBuilder::new(host.as_ref()).build()
+        Builder::new(host.as_ref()).build()
     }
 
     /// Create a new non-SSL Traduora API representation.
@@ -111,7 +93,7 @@ impl Traduora<Unauthenticated> {
     where
         T: AsRef<str>,
     {
-        TraduoraBuilder::new(host.as_ref())
+        Builder::new(host.as_ref())
             .use_http(true)
             .validate_certs(false)
             .build()
@@ -134,9 +116,7 @@ impl Traduora<Authenticated> {
     where
         T: AsRef<str>,
     {
-        TraduoraBuilder::new(host.as_ref())
-            .authenticate(login)
-            .build()
+        Builder::new(host.as_ref()).authenticate(login).build()
     }
 
     /// Create a new non-SSL Traduora API representation.
@@ -144,7 +124,7 @@ impl Traduora<Authenticated> {
     where
         T: AsRef<str>,
     {
-        TraduoraBuilder::new(host.as_ref())
+        Builder::new(host.as_ref())
             .use_http(true)
             .validate_certs(false)
             .authenticate(login)
@@ -273,7 +253,7 @@ impl AsyncTraduora<Unauthenticated> {
     where
         T: AsRef<str>,
     {
-        TraduoraBuilder::new(host.as_ref()).build_async().await
+        Builder::new(host.as_ref()).build_async().await
     }
 
     /// Create a new non-SSL Traduora API representation.
@@ -281,7 +261,7 @@ impl AsyncTraduora<Unauthenticated> {
     where
         T: AsRef<str>,
     {
-        TraduoraBuilder::new(host.as_ref())
+        Builder::new(host.as_ref())
             .use_http(true)
             .validate_certs(false)
             .build_async()
@@ -305,7 +285,7 @@ impl AsyncTraduora<Authenticated> {
     where
         T: AsRef<str>,
     {
-        TraduoraBuilder::new(host.as_ref())
+        Builder::new(host.as_ref())
             .authenticate(login)
             .build_async()
             .await
@@ -316,7 +296,7 @@ impl AsyncTraduora<Authenticated> {
     where
         T: AsRef<str>,
     {
-        TraduoraBuilder::new(host.as_ref())
+        Builder::new(host.as_ref())
             .use_http(true)
             .validate_certs(false)
             .authenticate(login)
@@ -326,14 +306,15 @@ impl AsyncTraduora<Authenticated> {
 }
 
 #[derive(Clone, Debug)]
-pub struct TraduoraBuilder<'h, L> {
+#[must_use]
+pub struct Builder<'h, L> {
     host: &'h str,
     protocol: &'static str,
     validate_certs: bool,
     login: L,
 }
 
-impl<'h> TraduoraBuilder<'h, ()> {
+impl<'h> Builder<'h, ()> {
     pub fn new(host: &'h str) -> Self {
         Self {
             host,
@@ -342,8 +323,9 @@ impl<'h> TraduoraBuilder<'h, ()> {
             login: (),
         }
     }
-    pub fn authenticate(self, login: Login) -> TraduoraBuilder<'h, Login> {
-        TraduoraBuilder {
+
+    pub fn authenticate(self, login: Login) -> Builder<'h, Login> {
+        Builder {
             host: self.host,
             protocol: self.protocol,
             validate_certs: self.validate_certs,
@@ -351,8 +333,8 @@ impl<'h> TraduoraBuilder<'h, ()> {
         }
     }
 
-    pub fn with_access_token(self, token: impl Into<String>) -> TraduoraBuilder<'h, String> {
-        TraduoraBuilder {
+    pub fn with_access_token(self, token: impl Into<String>) -> Builder<'h, String> {
+        Builder {
             host: self.host,
             protocol: self.protocol,
             validate_certs: self.validate_certs,
@@ -369,7 +351,7 @@ impl<'h> TraduoraBuilder<'h, ()> {
     }
 }
 
-impl<'h> TraduoraBuilder<'h, Login> {
+impl<'h> Builder<'h, Login> {
     pub fn build(&self) -> TraduoraResult<Traduora<Authenticated>> {
         let api = self.build_unauthenticated()?;
         api.authenticate(&self.login)
@@ -381,7 +363,7 @@ impl<'h> TraduoraBuilder<'h, Login> {
     }
 }
 
-impl<'h> TraduoraBuilder<'h, String> {
+impl<'h> Builder<'h, String> {
     pub fn build(&self) -> TraduoraResult<Traduora<Authenticated>> {
         let api = self.build_unauthenticated()?;
         Ok(Traduora {
@@ -401,12 +383,9 @@ impl<'h> TraduoraBuilder<'h, String> {
     }
 }
 
-impl<'h, L> TraduoraBuilder<'h, L> {
+impl<'h, L> Builder<'h, L> {
     pub fn use_http(mut self, use_http: bool) -> Self {
-        self.protocol = match use_http {
-            true => "http",
-            false => "https",
-        };
+        self.protocol = if use_http { "http" } else { "https" };
         self
     }
 

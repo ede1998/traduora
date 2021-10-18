@@ -132,16 +132,14 @@ where
             .pointer("/message")
             .or_else(|| value.pointer("/error"));
 
-        if let Some(error_value) = error_value {
-            if let Some(msg) = error_value.as_str() {
-                ApiError::Gitlab { msg: msg.into() }
-            } else {
-                ApiError::GitlabObject {
+        match error_value {
+            Some(error_value) => match error_value.as_str() {
+                Some(msg) => ApiError::Gitlab { msg: msg.into() },
+                None => ApiError::GitlabObject {
                     obj: error_value.clone(),
-                }
-            }
-        } else {
-            ApiError::GitlabUnrecognized { obj: value }
+                },
+            },
+            None => ApiError::GitlabUnrecognized { obj: value },
         }
     }
 

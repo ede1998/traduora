@@ -39,7 +39,7 @@ where
 {
     #[derive(Deserialize)]
     #[serde(bound = "T: DeserializeOwned")]
-    struct Container<T: DeserializeOwned> {
+    struct Container<T> {
         data: T,
     }
     serde_json::from_value::<Container<T>>(data)

@@ -46,7 +46,7 @@ where
     fn query(&self, client: &C) -> Result<T, ApiError<C::Error>> {
         let (req, data) = build_request_with_body(self, client)?;
         let rsp = client.rest(req, data)?;
-        process_response(rsp)
+        process_response(&rsp)
     }
 }
 
@@ -60,29 +60,26 @@ where
     async fn query_async(&self, client: &C) -> Result<T, ApiError<C::Error>> {
         let (req, data) = build_request_with_body(self, client)?;
         let rsp = client.rest_async(req, data).await?;
-        process_response(rsp)
+        process_response(&rsp)
     }
 }
 
-fn process_response<T, E>(rsp: Response<Bytes>) -> Result<T, ApiError<E>>
+fn process_response<T, E>(rsp: &Response<Bytes>) -> Result<T, ApiError<E>>
 where
     T: DeserializeOwned,
     E: std::error::Error + Send + Sync + 'static,
 {
-    match rsp.status().is_success() {
-        true => {
-            // try to parse as general JSON or give general parse error
-            let v = serde_json::from_slice(rsp.body())?;
-            // map to desired rust type or give type mapping error
-            serde_json::from_value::<T>(v).map_err(ApiError::data_type::<T>)
-        }
-        false => {
-            // try to parse error as JSON or give general error
-            let v = serde_json::from_slice(rsp.body())
-                .map_err(|_| ApiError::server_error(rsp.status(), rsp.body()))?;
-            // give specific error message
-            Err(ApiError::from_gitlab(v))
-        }
+    if rsp.status().is_success() {
+        // try to parse as general JSON or give general parse error
+        let v = serde_json::from_slice(rsp.body())?;
+        // map to desired rust type or give type mapping error
+        serde_json::from_value::<T>(v).map_err(ApiError::data_type::<T>)
+    } else {
+        // try to parse error as JSON or give general error
+        let v = serde_json::from_slice(rsp.body())
+            .map_err(|_| ApiError::server_error(rsp.status(), rsp.body()))?;
+        // give specific error message
+        Err(ApiError::from_gitlab(v))
     }
 }
 
