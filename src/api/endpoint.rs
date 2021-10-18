@@ -64,7 +64,7 @@ where
     }
 }
 
-pub(crate) fn process_response<T, E, F>(rsp: &Response<Bytes>, mapper: F) -> Result<T, ApiError<E>>
+pub fn process_response<T, E, F>(rsp: &Response<Bytes>, mapper: F) -> Result<T, ApiError<E>>
 where
     T: DeserializeOwned,
     E: std::error::Error + Send + Sync + 'static,
@@ -84,7 +84,7 @@ where
     }
 }
 
-pub(crate) fn build_request_with_body<E, C>(
+pub fn build_request_with_body<E, C>(
     endpoint: &E,
     client: &C,
 ) -> Result<(Builder, Vec<u8>), ApiError<C::Error>>

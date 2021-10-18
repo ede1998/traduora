@@ -99,7 +99,7 @@ impl Traduora<Unauthenticated> {
             .build()
     }
 
-    pub fn authenticate(self, login: Login) -> TraduoraResult<Traduora<Authenticated>> {
+    pub fn authenticate(self, login: &Login) -> TraduoraResult<Traduora<Authenticated>> {
         let token = login.query(&self)?;
 
         Ok(Traduora {
@@ -267,7 +267,7 @@ impl AsyncTraduora<Unauthenticated> {
             .build_async()
     }
 
-    pub async fn authenticate(self, login: Login) -> TraduoraResult<AsyncTraduora<Authenticated>> {
+    pub async fn authenticate(self, login: &Login) -> TraduoraResult<AsyncTraduora<Authenticated>> {
         let token = login.query_async(&self).await?;
 
         Ok(AsyncTraduora {
@@ -353,12 +353,12 @@ impl<'h> Builder<'h, ()> {
 impl<'h> Builder<'h, Login> {
     pub fn build(self) -> TraduoraResult<Traduora<Authenticated>> {
         let api = self.build_unauthenticated()?;
-        api.authenticate(self.login)
+        api.authenticate(&self.login)
     }
 
     pub async fn build_async(self) -> TraduoraResult<AsyncTraduora<Authenticated>> {
         let api = self.build_unauthenticated_async()?;
-        api.authenticate(self.login).await
+        api.authenticate(&self.login).await
     }
 }
 
