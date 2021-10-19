@@ -25,14 +25,18 @@ use crate::{api::Endpoint, auth::Unauthenticated, query::DefaultModel};
 pub enum Token {
     /// Authentification for normal users. This uses the same login data that is typed in the browser.
     Password {
+        /// Email address of the user.
         #[serde(rename = "username")]
         mail: String,
+        /// Password of the user.
         password: String,
     },
     /// Authentification for project clients. This uses a special login for automated clients.
     /// See tab 'API Keys' within a project.
     ClientCredentials {
+        /// Id of the project client.
         client_id: String,
+        /// Secret of the project client.
         client_secret: String,
     },
 }

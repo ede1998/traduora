@@ -14,6 +14,7 @@ use super::RestClient;
 
 /// A trait for providing the necessary information for a single REST API endpoint.
 pub trait Endpoint {
+    /// Defines the permission level that the client must have to be able to access this endpoint.
     type AccessControl: Scope;
 
     /// The HTTP method to use for the endpoint.

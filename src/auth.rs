@@ -17,11 +17,14 @@ use thiserror::Error;
 
 use crate::api::auth::AccessToken;
 
+/// The error which is returned from [`Scope::set_header`] when it failed to set the `Authorization` header.
 #[derive(Debug, Error)]
 #[non_exhaustive]
 pub enum AuthError {
+    /// Header value could not be set.
     #[error("header value error: {}", source)]
     HeaderValue {
+        /// Inner error.
         #[from]
         source: http::header::InvalidHeaderValue,
     },

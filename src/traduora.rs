@@ -15,36 +15,53 @@ use crate::auth::{AuthError, Authenticated, Scope, Unauthenticated};
 use crate::query::{AsyncQuery, Query};
 use crate::Login;
 
+/// The error type which is returned by constructor for a Traduora client.
 #[derive(Debug, Error)]
 #[non_exhaustive]
 pub enum TraduoraError {
+    /// URL for the Traduora API failed to parse.
     #[error("failed to parse url: {}", source)]
     UrlParse {
+        /// Inner error.
         #[from]
         source: url::ParseError,
     },
+    /// Authorization header could not be set.
     #[error("error setting auth header: {}", source)]
     AuthError {
+        /// Inner error.
         #[from]
         source: AuthError,
     },
+    /// Reqwest failed to process the request.
     #[error("communication with traduora: {}", source)]
     Communication {
+        /// Inner error.
         #[from]
         source: reqwest::Error,
     },
+    /// HTTP error.
     #[error("traduora HTTP error: {}", status)]
-    Http { status: reqwest::StatusCode },
+    Http {
+        /// Status code returned from server
+        status: reqwest::StatusCode,
+    },
+    /// No response from Traduora.
     #[error("no response from traduora")]
     NoResponse {},
+    /// Serde failed to deserialize the JSON to the given type.
     #[error("could not parse {} data from JSON: {}", typename, source)]
     DataType {
+        /// Inner error.
         #[source]
         source: serde_json::Error,
+        /// The type that failed to deserialize.
         typename: &'static str,
     },
+    /// Error accessing the API.
     #[error("api error: {}", source)]
     Api {
+        /// Inner error.
         #[from]
         source: api::ApiError<RestError>,
     },
@@ -76,6 +93,18 @@ impl<A: Scope + Debug> Debug for Traduora<A> {
 
 impl Traduora<Unauthenticated> {
     /// Create a new Traduora API representation.
+    ///
+    /// Calling this method does not query the API.
+    ///
+    /// # Examples
+    /// ```
+    /// # use traduora::TraduoraError;
+    /// use traduora::Traduora;
+    /// # fn main() -> Result<(), TraduoraError> {
+    /// let client = Traduora::new("localhost:8080")?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn new<T>(host: T) -> TraduoraResult<Self>
     where
         T: AsRef<str>,
@@ -84,6 +113,21 @@ impl Traduora<Unauthenticated> {
     }
 
     /// Create a new non-SSL Traduora API representation.
+    ///
+    /// Calling this method does not query the API.
+    ///
+    /// # Warning
+    /// It is **strongly** recommended to use [`Traduora::new`] instead to force encryption.
+    ///
+    /// # Examples
+    /// ```
+    /// # use traduora::TraduoraError;
+    /// use traduora::Traduora;
+    /// # fn main() -> Result<(), TraduoraError> {
+    /// let client = Traduora::new_insecure("localhost:8080")?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn new_insecure<T>(host: T) -> TraduoraResult<Self>
     where
         T: AsRef<str>,
@@ -94,6 +138,21 @@ impl Traduora<Unauthenticated> {
             .build()
     }
 
+    /// Tries to authenticate the Traduora client.
+    ///
+    /// Calling this method queries the Traduora API.
+    ///
+    /// # Examples
+    /// ```no_run
+    /// # use traduora::TraduoraError;
+    /// use traduora::{Login, Traduora};
+    /// # fn main() -> Result<(), TraduoraError> {
+    /// let client = Traduora::new_insecure("localhost:8080")?;
+    /// let login = Login::password("user@traduora.example", "password");
+    /// let authenticated_client = client.authenticate(&login)?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn authenticate(self, login: &Login) -> TraduoraResult<Traduora<Authenticated>> {
         let token = login.query(&self)?;
 
@@ -106,7 +165,21 @@ impl Traduora<Unauthenticated> {
 }
 
 impl Traduora<Authenticated> {
-    /// Create a new Traduora API representation.
+    /// Create a new Traduora API representation and authenticate
+    /// the user.
+    ///
+    /// Calling this method queries the Traduora API.
+    ///
+    /// # Examples
+    /// ```no_run
+    /// # use traduora::TraduoraError;
+    /// use traduora::{Login, Traduora};
+    /// # fn main() -> Result<(), TraduoraError> {
+    /// let login = Login::password("user@traduora.example", "password");
+    /// let client = Traduora::with_auth("localhost:8080", login)?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn with_auth<T>(host: T, login: Login) -> TraduoraResult<Self>
     where
         T: AsRef<str>,
@@ -114,7 +187,24 @@ impl Traduora<Authenticated> {
         Builder::new(host.as_ref()).authenticate(login).build()
     }
 
-    /// Create a new non-SSL Traduora API representation.
+    /// Create a new non-SSL Traduora API representation
+    /// and authenticate the user.
+    ///
+    /// Calling this method queries the Traduora API.
+    ///
+    /// # Warning
+    /// It is **strongly** recommended to use [`Traduora::new`] instead to force encryption.
+    ///
+    /// # Examples
+    /// ```no_run
+    /// # use traduora::TraduoraError;
+    /// use traduora::{Login, Traduora};
+    /// # fn main() -> Result<(), TraduoraError> {
+    /// let login = Login::password("user@traduora.example", "password");
+    /// let client = Traduora::with_auth_insecure("localhost:8080", login)?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn with_auth_insecure<T>(host: T, login: Login) -> TraduoraResult<Self>
     where
         T: AsRef<str>,
@@ -244,6 +334,18 @@ impl<A: Scope + Send + Sync> api::AsyncClient for AsyncTraduora<A> {
 
 impl AsyncTraduora<Unauthenticated> {
     /// Create a new Traduora API representation.
+    ///
+    /// Calling this method does not query the API.
+    ///
+    /// # Examples
+    /// ```
+    /// # use traduora::TraduoraError;
+    /// use traduora::AsyncTraduora;
+    /// # fn main() -> Result<(), TraduoraError> {
+    /// let client = AsyncTraduora::new("localhost:8080")?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn new<T>(host: T) -> TraduoraResult<Self>
     where
         T: AsRef<str>,
@@ -252,6 +354,21 @@ impl AsyncTraduora<Unauthenticated> {
     }
 
     /// Create a new non-SSL Traduora API representation.
+    ///
+    /// Calling this method does not query the API.
+    ///
+    /// # Warning
+    /// It is **strongly** recommended to use [`AsyncTraduora::new`] instead to force encryption.
+    ///
+    /// # Examples
+    /// ```
+    /// # use traduora::TraduoraError;
+    /// use traduora::AsyncTraduora;
+    /// # fn main() -> Result<(), TraduoraError> {
+    /// let client = AsyncTraduora::new_insecure("localhost:8080")?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn new_insecure<T>(host: T) -> TraduoraResult<Self>
     where
         T: AsRef<str>,
@@ -262,6 +379,21 @@ impl AsyncTraduora<Unauthenticated> {
             .build_async()
     }
 
+    /// Tries to authenticate the Traduora client.
+    ///
+    /// Calling this method queries the Traduora API.
+    ///
+    /// # Examples
+    /// ```no_run
+    /// # use traduora::TraduoraError;
+    /// use traduora::{Login, AsyncTraduora};
+    /// # async fn main_async() -> Result<(), TraduoraError> {
+    /// let client = AsyncTraduora::new_insecure("localhost:8080")?;
+    /// let login = Login::password("user@traduora.example", "password");
+    /// let authenticated_client = client.authenticate(&login).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn authenticate(self, login: &Login) -> TraduoraResult<AsyncTraduora<Authenticated>> {
         let token = login.query_async(&self).await?;
 
@@ -274,7 +406,21 @@ impl AsyncTraduora<Unauthenticated> {
 }
 
 impl AsyncTraduora<Authenticated> {
-    /// Create a new Traduora API representation.
+    /// Create a new Traduora API representation
+    /// and authenticate the user.
+    ///
+    /// Calling this method queries the Traduora API.
+    ///
+    /// # Examples
+    /// ```no_run
+    /// # use traduora::TraduoraError;
+    /// use traduora::{Login, AsyncTraduora};
+    /// # async fn main_async() -> Result<(), TraduoraError> {
+    /// let login = Login::password("user@traduora.example", "password");
+    /// let client = AsyncTraduora::with_auth("localhost:8080", login).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn with_auth<T>(host: T, login: Login) -> TraduoraResult<Self>
     where
         T: AsRef<str> + Sync + Send + 'static,
@@ -285,7 +431,24 @@ impl AsyncTraduora<Authenticated> {
             .await
     }
 
-    /// Create a new non-SSL Traduora API representation.
+    /// Create a new non-SSL Traduora API representation
+    /// and authenticate the user.
+    ///
+    /// Calling this method queries the Traduora API.
+    ///
+    /// # Warning
+    /// It is **strongly** recommended to use [`Traduora::new`] instead to force encryption.
+    ///
+    /// # Examples
+    /// ```no_run
+    /// # use traduora::TraduoraError;
+    /// use traduora::{Login, AsyncTraduora};
+    /// # async fn main_async() -> Result<(), TraduoraError> {
+    /// let login = Login::password("user@traduora.example", "password");
+    /// let client = AsyncTraduora::with_auth_insecure("localhost:8080", login).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn with_auth_insecure<T>(host: T, login: Login) -> TraduoraResult<Self>
     where
         T: AsRef<str> + Sync + Send + 'static,
