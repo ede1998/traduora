@@ -74,7 +74,7 @@ where
         let v = serde_json::from_slice(rsp.body())
             .map_err(|_| ApiError::server_error(rsp.status(), rsp.body()))?;
         // give specific error message
-        Err(ApiError::from_gitlab(v))
+        Err(ApiError::from_traduora(v))
     }
 }
 
@@ -129,13 +129,13 @@ mod tests {
     }
 
     #[test]
-    fn test_gitlab_non_json_response() {
+    fn test_traduora_non_json_response() {
         let endpoint = ExpectedUrl::builder().endpoint("dummy").build().unwrap();
         let client = SingleTestClient::new_raw(endpoint, "not json");
 
         let res: Result<DummyResult, _> = Dummy.query(&client);
         let err = res.unwrap_err();
-        if let ApiError::GitlabService {
+        if let ApiError::TraduoraService {
             status, ..
         } = err
         {
@@ -146,13 +146,13 @@ mod tests {
     }
 
     #[test]
-    fn test_gitlab_empty_response() {
+    fn test_traduora_empty_response() {
         let endpoint = ExpectedUrl::builder().endpoint("dummy").build().unwrap();
         let client = SingleTestClient::new_raw(endpoint, "");
 
         let res: Result<DummyResult, _> = Dummy.query(&client);
         let err = res.unwrap_err();
-        if let ApiError::GitlabService {
+        if let ApiError::TraduoraService {
             status, ..
         } = err
         {
@@ -163,7 +163,7 @@ mod tests {
     }
 
     #[test]
-    fn test_gitlab_error_bad_json() {
+    fn test_traduora_error_bad_json() {
         let endpoint = ExpectedUrl::builder()
             .endpoint("dummy")
             .status(StatusCode::NOT_FOUND)
@@ -173,7 +173,7 @@ mod tests {
 
         let res: Result<DummyResult, _> = Dummy.query(&client);
         let err = res.unwrap_err();
-        if let ApiError::GitlabService {
+        if let ApiError::TraduoraService {
             status, ..
         } = err
         {
@@ -184,7 +184,7 @@ mod tests {
     }
 
     #[test]
-    fn test_gitlab_error_detection() {
+    fn test_traduora_error_detection() {
         let endpoint = ExpectedUrl::builder()
             .endpoint("dummy")
             .status(StatusCode::NOT_FOUND)
@@ -199,7 +199,7 @@ mod tests {
 
         let res: Result<DummyResult, _> = Dummy.query(&client);
         let err = res.unwrap_err();
-        if let ApiError::Gitlab {
+        if let ApiError::Traduora {
             msg,
         } = err
         {
@@ -210,7 +210,7 @@ mod tests {
     }
 
     #[test]
-    fn test_gitlab_error_detection_legacy() {
+    fn test_traduora_error_detection_legacy() {
         let endpoint = ExpectedUrl::builder()
             .endpoint("dummy")
             .status(StatusCode::NOT_FOUND)
@@ -225,7 +225,7 @@ mod tests {
 
         let res: Result<DummyResult, _> = Dummy.query(&client);
         let err = res.unwrap_err();
-        if let ApiError::Gitlab {
+        if let ApiError::Traduora {
             msg,
         } = err
         {
@@ -236,7 +236,7 @@ mod tests {
     }
 
     #[test]
-    fn test_gitlab_error_detection_unknown() {
+    fn test_traduora_error_detection_unknown() {
         let endpoint = ExpectedUrl::builder()
             .endpoint("dummy")
             .status(StatusCode::NOT_FOUND)
@@ -249,7 +249,7 @@ mod tests {
 
         let res: Result<DummyResult, _> = Dummy.query(&client);
         let err = res.unwrap_err();
-        if let ApiError::GitlabUnrecognized {
+        if let ApiError::TraduoraUnrecognized {
             obj,
         } = err
         {
@@ -277,7 +277,7 @@ mod tests {
         } = err
         {
             assert_eq!(format!("{}", source), "missing field `value`");
-            assert_eq!(typename, "gitlab::api::endpoint::tests::DummyResult");
+            assert_eq!(typename, "traduora::api::endpoint::tests::DummyResult");
         } else {
             panic!("unexpected error: {}", err);
         }

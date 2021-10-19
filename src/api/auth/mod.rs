@@ -1,1 +1,3 @@
-pub mod token;
+mod token;
+
+pub use token::{AccessToken, Token};

@@ -1,1 +1,3 @@
-pub mod me;
+mod me;
+
+pub use me::{Me, UserInfo};

@@ -9,6 +9,24 @@ use crate::api::{ApiError, AsyncClient, Client};
 /// The distinction is useful to prevent deserialization of fields that the caller is not
 /// interested in or to allow deserialization when the Traduora instance returns an
 /// unexpected model.
+///
+/// # Examples
+/// ```no_run
+/// use serde::Deserialize;
+/// use traduora::{CustomQuery, TraduoraError, api::users::Me};
+///
+/// #[derive(Deserialize)]
+/// struct IdOnlyInfo {
+///     id: String,
+/// }
+///
+/// # fn main() -> Result<(), TraduoraError> {
+/// # let client = traduora::api::doctests::DummyClient;
+/// let user_info: IdOnlyInfo = Me.query_custom(&client)?;
+/// assert!(!user_info.id.is_empty());
+/// # Ok(())
+/// # }
+/// ```
 pub trait CustomQuery<T, C>
 where
     C: Client,
@@ -24,6 +42,24 @@ where
 /// The distinction is useful to prevent deserialization of fields that the caller is not
 /// interested in or to allow deserialization when the Traduora instance returns an
 /// unexpected model.
+///
+/// # Examples
+/// ```no_run
+/// use serde::Deserialize;
+/// use traduora::{AsyncCustomQuery, TraduoraError, api::users::Me};
+///
+/// #[derive(Deserialize)]
+/// struct IdOnlyInfo {
+///     id: String,
+/// }
+///
+/// # async fn main_async() -> Result<(), TraduoraError> {
+/// # let client = traduora::api::doctests::DummyClient;
+/// let user_info: IdOnlyInfo = Me.query_custom_async(&client).await?;
+/// assert!(!user_info.id.is_empty());
+/// # Ok(())
+/// # }
+/// ```
 #[async_trait]
 pub trait AsyncCustomQuery<T, C>
 where

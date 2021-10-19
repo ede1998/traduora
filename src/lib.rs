@@ -1,23 +1,18 @@
+#![doc = include_str!("../README.md")]
+
 pub mod api;
 pub mod auth;
 mod query;
 mod traduora;
 
-/// Alias for [`AuthentificateRequest`](api::auth::token::AuthentificateRequest).
+/// Alias for [`Token`](api::auth::Token).
 /// The shorter and clearer name improves readability when
 /// building a [`Traduora`] or [`AsyncTraduora`] client.
-pub type Login = api::auth::token::AuthentificateRequest;
+pub type Login = api::auth::Token;
 
+pub use crate::traduora::AsyncTraduora;
+pub use crate::traduora::Builder as TraduoraBuilder;
+pub use crate::traduora::Traduora;
+pub use crate::traduora::TraduoraError;
+pub use api::{AsyncCustomQuery, CustomQuery};
 pub use query::{AsyncQuery, Query};
-pub use traduora::AsyncTraduora;
-pub use traduora::Builder as TraduoraBuilder;
-pub use traduora::Traduora;
-pub use traduora::TraduoraError;
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
-    }
-}

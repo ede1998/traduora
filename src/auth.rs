@@ -15,7 +15,7 @@ use http::{HeaderMap, HeaderValue};
 use std::fmt::Debug;
 use thiserror::Error;
 
-use crate::api::auth::token::AccessToken;
+use crate::api::auth::AccessToken;
 
 #[derive(Debug, Error)]
 #[non_exhaustive]

@@ -1,5 +1,5 @@
 use simple_logger::SimpleLogger;
-use traduora::api::users::me::Me;
+use traduora::api::users::Me;
 use traduora::AsyncQuery;
 use traduora::AsyncTraduora;
 use traduora::Login;

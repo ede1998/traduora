@@ -5,9 +5,7 @@ pub(crate) mod endpoint;
 mod error;
 pub mod users;
 
-pub use client::AsyncClient;
-pub use client::Client;
-pub use client::RestClient;
+pub use client::*;
 pub use custom_query::AsyncCustomQuery;
 pub use custom_query::CustomQuery;
 pub use endpoint::Endpoint;

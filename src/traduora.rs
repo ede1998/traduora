@@ -1,9 +1,3 @@
-// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
-// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
-// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
-// option. This file may not be copied, modified, or distributed
-// except according to those terms.
-
 use std::convert::TryInto;
 use std::fmt::{self, Debug};
 
@@ -34,14 +28,14 @@ pub enum TraduoraError {
         #[from]
         source: AuthError,
     },
-    #[error("communication with gitlab: {}", source)]
+    #[error("communication with traduora: {}", source)]
     Communication {
         #[from]
         source: reqwest::Error,
     },
-    #[error("gitlab HTTP error: {}", status)]
+    #[error("traduora HTTP error: {}", status)]
     Http { status: reqwest::StatusCode },
-    #[error("no response from gitlab")]
+    #[error("no response from traduora")]
     NoResponse {},
     #[error("could not parse {} data from JSON: {}", typename, source)]
     DataType {
@@ -141,7 +135,7 @@ pub enum RestError {
         #[from]
         source: AuthError,
     },
-    #[error("communication with gitlab: {}", source)]
+    #[error("communication with traduora: {}", source)]
     Communication {
         #[from]
         source: reqwest::Error,
@@ -158,7 +152,7 @@ impl<A: Scope> api::RestClient for Traduora<A> {
     type AccessLevel = A;
 
     fn rest_endpoint(&self, endpoint: &str) -> Result<Url, api::ApiError<Self::Error>> {
-        debug!(target: "gitlab", "REST api call {}", endpoint);
+        debug!(target: "traduora", "REST api call {}", endpoint);
         Ok(self.rest_url.join(endpoint)?)
     }
 }
@@ -215,7 +209,7 @@ impl<A: Scope> api::RestClient for AsyncTraduora<A> {
     type Error = RestError;
 
     fn rest_endpoint(&self, endpoint: &str) -> Result<Url, api::ApiError<Self::Error>> {
-        debug!(target: "gitlab", "REST api call {}", endpoint);
+        debug!(target: "traduora", "REST api call {}", endpoint);
         Ok(self.rest_url.join(endpoint)?)
     }
 

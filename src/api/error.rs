@@ -1,9 +1,3 @@
-// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
-// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
-// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
-// option. This file may not be copied, modified, or distributed
-// except according to those terms.
-
 use std::any;
 use std::error::Error;
 
@@ -49,37 +43,37 @@ where
         #[from]
         source: BodyError,
     },
-    /// JSON deserialization from GitLab failed.
+    /// JSON deserialization from Traduora failed.
     #[error("could not parse JSON response: {}", source)]
     Json {
         /// The source of the error.
         #[from]
         source: serde_json::Error,
     },
-    /// GitLab returned an error message.
-    #[error("gitlab server error: {}", msg)]
-    Gitlab {
-        /// The error message from GitLab.
+    /// Traduora returned an error message.
+    #[error("traduora server error: {}", msg)]
+    Traduora {
+        /// The error message from Traduora.
         msg: String,
     },
-    /// GitLab returned an error without JSON information.
-    #[error("gitlab internal server error {}", status)]
-    GitlabService {
+    /// Traduora returned an error without JSON information.
+    #[error("traduora internal server error {}", status)]
+    TraduoraService {
         /// The status code for the return.
         status: http::StatusCode,
-        /// The error data from GitLab.
+        /// The error data from Traduora.
         data: Vec<u8>,
     },
-    /// GitLab returned an error object.
-    #[error("gitlab server error: {:?}", obj)]
-    GitlabObject {
-        /// The error object from GitLab.
+    /// Traduora returned an error object.
+    #[error("traduora server error: {:?}", obj)]
+    TraduoraObject {
+        /// The error object from Traduora.
         obj: serde_json::Value,
     },
-    /// GitLab returned an HTTP error with JSON we did not recognize.
-    #[error("gitlab server error: {:?}", obj)]
-    GitlabUnrecognized {
-        /// The full object from GitLab.
+    /// Traduora returned an HTTP error with JSON we did not recognize.
+    #[error("traduora server error: {:?}", obj)]
+    TraduoraUnrecognized {
+        /// The full object from Traduora.
         obj: serde_json::Value,
     },
     /// Failed to parse an expected data type from JSON.
@@ -112,34 +106,34 @@ where
             Self::UrlParse { source } => ApiError::UrlParse { source },
             Self::Body { source } => ApiError::Body { source },
             Self::Json { source } => ApiError::Json { source },
-            Self::Gitlab { msg } => ApiError::Gitlab { msg },
-            Self::GitlabService { status, data } => ApiError::GitlabService { status, data },
-            Self::GitlabObject { obj } => ApiError::GitlabObject { obj },
-            Self::GitlabUnrecognized { obj } => ApiError::GitlabUnrecognized { obj },
+            Self::Traduora { msg } => ApiError::Traduora { msg },
+            Self::TraduoraService { status, data } => ApiError::TraduoraService { status, data },
+            Self::TraduoraObject { obj } => ApiError::TraduoraObject { obj },
+            Self::TraduoraUnrecognized { obj } => ApiError::TraduoraUnrecognized { obj },
             Self::DataType { source, typename } => ApiError::DataType { source, typename },
         }
     }
 
     pub(crate) fn server_error(status: http::StatusCode, body: &bytes::Bytes) -> Self {
-        Self::GitlabService {
+        Self::TraduoraService {
             status,
             data: body.into_iter().copied().collect(),
         }
     }
 
-    pub(crate) fn from_gitlab(value: serde_json::Value) -> Self {
+    pub(crate) fn from_traduora(value: serde_json::Value) -> Self {
         let error_value = value
             .pointer("/message")
             .or_else(|| value.pointer("/error"));
 
         match error_value {
             Some(error_value) => match error_value.as_str() {
-                Some(msg) => Self::Gitlab { msg: msg.into() },
-                None => Self::GitlabObject {
+                Some(msg) => Self::Traduora { msg: msg.into() },
+                None => Self::TraduoraObject {
                     obj: error_value.clone(),
                 },
             },
-            None => Self::GitlabUnrecognized { obj: value },
+            None => Self::TraduoraUnrecognized { obj: value },
         }
     }
 
@@ -163,13 +157,13 @@ mod tests {
     enum MyError {}
 
     #[test]
-    fn gitlab_error_error() {
+    fn traduora_error_error() {
         let obj = json!({
             "error": "error contents",
         });
 
-        let err: ApiError<MyError> = ApiError::from_gitlab(obj);
-        if let ApiError::Gitlab { msg } = err {
+        let err: ApiError<MyError> = ApiError::from_traduora(obj);
+        if let ApiError::Traduora { msg } = err {
             assert_eq!(msg, "error contents");
         } else {
             panic!("unexpected error: {}", err);
@@ -177,13 +171,13 @@ mod tests {
     }
 
     #[test]
-    fn gitlab_error_message_string() {
+    fn traduora_error_message_string() {
         let obj = json!({
             "message": "error contents",
         });
 
-        let err: ApiError<MyError> = ApiError::from_gitlab(obj);
-        if let ApiError::Gitlab { msg } = err {
+        let err: ApiError<MyError> = ApiError::from_traduora(obj);
+        if let ApiError::Traduora { msg } = err {
             assert_eq!(msg, "error contents");
         } else {
             panic!("unexpected error: {}", err);
@@ -191,7 +185,7 @@ mod tests {
     }
 
     #[test]
-    fn gitlab_error_message_object() {
+    fn traduora_error_message_object() {
         let err_obj = json!({
             "blah": "foo",
         });
@@ -199,8 +193,8 @@ mod tests {
             "message": err_obj,
         });
 
-        let err: ApiError<MyError> = ApiError::from_gitlab(obj);
-        if let ApiError::GitlabObject { obj } = err {
+        let err: ApiError<MyError> = ApiError::from_traduora(obj);
+        if let ApiError::TraduoraObject { obj } = err {
             assert_eq!(obj, err_obj);
         } else {
             panic!("unexpected error: {}", err);
@@ -208,13 +202,13 @@ mod tests {
     }
 
     #[test]
-    fn gitlab_error_message_unrecognized() {
+    fn traduora_error_message_unrecognized() {
         let err_obj = json!({
             "some_weird_key": "an even weirder value",
         });
 
-        let err: ApiError<MyError> = ApiError::from_gitlab(err_obj.clone());
-        if let ApiError::GitlabUnrecognized { obj } = err {
+        let err: ApiError<MyError> = ApiError::from_traduora(err_obj.clone());
+        if let ApiError::TraduoraUnrecognized { obj } = err {
             assert_eq!(obj, err_obj);
         } else {
             panic!("unexpected error: {}", err);
