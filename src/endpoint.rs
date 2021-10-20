@@ -6,11 +6,9 @@ use http::{self, header, request::Builder, Method, Request, Response};
 use serde::de::DeserializeOwned;
 
 use crate::{
-    api::{ApiError, AsyncClient, AsyncCustomQuery, BodyError, Client, CustomQuery},
-    auth::Scope,
+    auth::Scope, ApiError, AsyncClient, AsyncCustomQuery, BodyError, Client, CustomQuery,
+    RestClient,
 };
-
-use super::RestClient;
 
 /// A trait for providing the necessary information for a single REST API endpoint.
 pub trait Endpoint {

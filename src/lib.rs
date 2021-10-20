@@ -2,10 +2,18 @@
 #![warn(missing_docs)]
 #![allow(clippy::module_name_repetitions)]
 
-pub mod api;
-pub mod auth;
+mod auth;
+mod client;
+mod custom_query;
+mod endpoint;
+mod error;
 mod query;
 mod traduora;
+
+pub mod api;
+
+pub(crate) use client::RestClient;
+pub(crate) use endpoint::Endpoint;
 
 /// Alias for [`Token`](api::auth::Token).
 /// The shorter and clearer name improves readability when
@@ -16,5 +24,7 @@ pub use crate::traduora::AsyncTraduora;
 pub use crate::traduora::Builder as TraduoraBuilder;
 pub use crate::traduora::Traduora;
 pub use crate::traduora::TraduoraError;
-pub use api::{AsyncCustomQuery, CustomQuery};
+pub use client::{doctests::DummyClient, AsyncClient, Client};
+pub use custom_query::{AsyncCustomQuery, CustomQuery};
+pub use error::{ApiError, BodyError};
 pub use query::{AsyncQuery, Query};

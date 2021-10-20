@@ -1,5 +1,6 @@
-use crate::{api::Endpoint, auth::Authenticated, query::DefaultModel};
 use serde::Deserialize;
+
+use crate::{auth::Authenticated, query::DefaultModel, Endpoint};
 
 /// Get the current user's profile.
 ///
@@ -10,7 +11,7 @@ use serde::Deserialize;
 /// use traduora::{Query, TraduoraError, api::users::{Me, UserInfo}};
 ///
 /// # fn main() -> Result<(), TraduoraError>{
-/// # let client = traduora::api::doctests::DummyClient;
+/// # let client = traduora::DummyClient;
 /// let user_info = Me.query(&client)?;
 /// assert!(!user_info.id.is_empty());
 /// # Ok(())

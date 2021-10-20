@@ -5,8 +5,8 @@ use serde::de::DeserializeOwned;
 use serde::Deserialize;
 use serde_json::Value;
 
-use crate::api::endpoint;
-use crate::api::{ApiError, AsyncClient, AsyncCustomQuery, Client, CustomQuery, Endpoint};
+use crate::endpoint;
+use crate::{ApiError, AsyncClient, AsyncCustomQuery, Client, CustomQuery, Endpoint};
 
 /// This trait defines the type that an endpoint
 /// should deserialize to by default.

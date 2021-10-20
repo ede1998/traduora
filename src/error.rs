@@ -95,25 +95,6 @@ where
         Self::Client { source }
     }
 
-    /// Wrap a client error in another wrapper.
-    pub fn map_client<F, W>(self, f: F) -> ApiError<W>
-    where
-        F: FnOnce(E) -> W,
-        W: Error + Send + Sync + 'static,
-    {
-        match self {
-            Self::Client { source } => ApiError::client(f(source)),
-            Self::UrlParse { source } => ApiError::UrlParse { source },
-            Self::Body { source } => ApiError::Body { source },
-            Self::Json { source } => ApiError::Json { source },
-            Self::Traduora { msg } => ApiError::Traduora { msg },
-            Self::TraduoraService { status, data } => ApiError::TraduoraService { status, data },
-            Self::TraduoraObject { obj } => ApiError::TraduoraObject { obj },
-            Self::TraduoraUnrecognized { obj } => ApiError::TraduoraUnrecognized { obj },
-            Self::DataType { source, typename } => ApiError::DataType { source, typename },
-        }
-    }
-
     pub(crate) fn server_error(status: http::StatusCode, body: &bytes::Bytes) -> Self {
         Self::TraduoraService {
             status,
@@ -150,7 +131,7 @@ mod tests {
     use serde_json::json;
     use thiserror::Error;
 
-    use crate::api::ApiError;
+    use crate::ApiError;
 
     #[derive(Debug, Error)]
     #[error("my error")]

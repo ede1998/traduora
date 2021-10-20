@@ -5,15 +5,11 @@ use async_trait::async_trait;
 use bytes::Bytes;
 use http::Response as HttpResponse;
 use log::{debug, error};
-use reqwest::blocking::Client;
-use reqwest::Client as AsyncClient;
 use thiserror::Error;
 use url::Url;
 
-use crate::api;
 use crate::auth::{AuthError, Authenticated, Scope, Unauthenticated};
-use crate::query::{AsyncQuery, Query};
-use crate::Login;
+use crate::{ApiError, AsyncClient, AsyncQuery, Client, Login, Query, RestClient};
 
 /// The error type which is returned by constructor for a Traduora client.
 #[derive(Debug, Error)]
@@ -63,7 +59,7 @@ pub enum TraduoraError {
     Api {
         /// Inner error.
         #[from]
-        source: api::ApiError<RestError>,
+        source: ApiError<RestError>,
     },
 }
 
@@ -75,7 +71,7 @@ type TraduoraResult<T> = Result<T, TraduoraError>;
 #[derive(Clone)]
 pub struct Traduora<A: Scope> {
     /// The client to use for API calls.
-    client: Client,
+    client: reqwest::blocking::Client,
     /// The base URL to use for API calls.
     rest_url: Url,
     /// The authentication information to use when communicating with Traduora.
@@ -101,7 +97,7 @@ impl Traduora<Unauthenticated> {
     /// This method returns an error if
     /// - the provided credentials are invalid.
     /// - the host url fails to parse.
-    /// - the underlying [`reqwest::Client`] cannot be initialized.
+    /// - the underlying [`reqwest::blocking::Client`] cannot be initialized.
 
     /// # Examples
     /// ```
@@ -130,7 +126,7 @@ impl Traduora<Unauthenticated> {
     /// This method returns an error if
     /// - the provided credentials are invalid.
     /// - the host url fails to parse.
-    /// - the underlying [`reqwest::Client`] cannot be initialized.
+    /// - the underlying [`reqwest::blocking::Client`] cannot be initialized.
     ///
     /// # Examples
     /// ```
@@ -190,7 +186,7 @@ impl Traduora<Authenticated> {
     /// This method returns an error if
     /// - the provided credentials are invalid.
     /// - the host url fails to parse.
-    /// - the underlying [`reqwest::Client`] cannot be initialized.
+    /// - the underlying [`reqwest::blocking::Client`] cannot be initialized.
     ///
     /// # Examples
     /// ```no_run
@@ -221,7 +217,7 @@ impl Traduora<Authenticated> {
     /// This method returns an error if
     /// - the provided credentials are invalid.
     /// - the host url fails to parse.
-    /// - the underlying [`reqwest::Client`] cannot be initialized.
+    /// - the underlying [`reqwest::blocking::Client`] cannot be initialized.
     ///
     /// # Examples
     /// ```no_run
@@ -265,22 +261,22 @@ pub enum RestError {
     },
 }
 
-impl<A: Scope> api::RestClient for Traduora<A> {
+impl<A: Scope> RestClient for Traduora<A> {
     type Error = RestError;
     type AccessLevel = A;
 
-    fn rest_endpoint(&self, endpoint: &str) -> Result<Url, api::ApiError<Self::Error>> {
+    fn rest_endpoint(&self, endpoint: &str) -> Result<Url, ApiError<Self::Error>> {
         debug!(target: "traduora", "REST api call {}", endpoint);
         Ok(self.rest_url.join(endpoint)?)
     }
 }
 
-impl<A: Scope> api::Client for Traduora<A> {
+impl<A: Scope> Client for Traduora<A> {
     fn rest(
         &self,
         mut request: http::request::Builder,
         body: Vec<u8>,
-    ) -> Result<HttpResponse<Bytes>, api::ApiError<Self::Error>> {
+    ) -> Result<HttpResponse<Bytes>, ApiError<Self::Error>> {
         let call = || -> Result<_, RestError> {
             self.token.set_header(request.headers_mut().unwrap())?;
             let http_request = request.body(body)?;
@@ -296,7 +292,7 @@ impl<A: Scope> api::Client for Traduora<A> {
             }
             Ok(http_rsp.body(rsp.bytes()?)?)
         };
-        call().map_err(api::ApiError::client)
+        call().map_err(ApiError::client)
     }
 }
 
@@ -323,10 +319,10 @@ impl<A: Scope + Debug> Debug for AsyncTraduora<A> {
 }
 
 #[async_trait]
-impl<A: Scope> api::RestClient for AsyncTraduora<A> {
+impl<A: Scope> RestClient for AsyncTraduora<A> {
     type Error = RestError;
 
-    fn rest_endpoint(&self, endpoint: &str) -> Result<Url, api::ApiError<Self::Error>> {
+    fn rest_endpoint(&self, endpoint: &str) -> Result<Url, ApiError<Self::Error>> {
         debug!(target: "traduora", "REST api call {}", endpoint);
         Ok(self.rest_url.join(endpoint)?)
     }
@@ -335,12 +331,12 @@ impl<A: Scope> api::RestClient for AsyncTraduora<A> {
 }
 
 #[async_trait]
-impl<A: Scope + Send + Sync> api::AsyncClient for AsyncTraduora<A> {
+impl<A: Scope + Send + Sync> AsyncClient for AsyncTraduora<A> {
     async fn rest_async(
         &self,
         mut request: http::request::Builder,
         body: Vec<u8>,
-    ) -> Result<HttpResponse<Bytes>, api::ApiError<Self::Error>> {
+    ) -> Result<HttpResponse<Bytes>, ApiError<Self::Error>> {
         let call = || async {
             self.token.set_header(request.headers_mut().unwrap())?;
             let http_request = request.body(body)?;
@@ -356,7 +352,7 @@ impl<A: Scope + Send + Sync> api::AsyncClient for AsyncTraduora<A> {
             }
             Ok(http_rsp.body(rsp.bytes().await?)?)
         };
-        call().await.map_err(api::ApiError::client)
+        call().await.map_err(ApiError::client)
     }
 }
 
@@ -597,7 +593,7 @@ impl<'h> Builder<'h, ()> {
     /// # Errors
     /// This method returns an error if
     /// - the host url fails to parse.
-    /// - the underlying [`reqwest::Client`] cannot be initialized.
+    /// - the underlying [`reqwest::blocking::Client`] cannot be initialized.
     pub fn build(&self) -> TraduoraResult<Traduora<Unauthenticated>> {
         self.build_unauthenticated()
     }
@@ -622,7 +618,7 @@ impl<'h> Builder<'h, Login> {
     /// This method returns an error if
     /// - the provided credentials are invalid.
     /// - the host url fails to parse.
-    /// - the underlying [`reqwest::Client`] cannot be initialized.
+    /// - the underlying [`reqwest::blocking::Client`] cannot be initialized.
     pub fn build(self) -> TraduoraResult<Traduora<Authenticated>> {
         let api = self.build_unauthenticated()?;
         api.authenticate(&self.login)
@@ -653,7 +649,7 @@ impl<'h> Builder<'h, String> {
     /// # Errors
     /// This method returns an error if
     /// - the host url fails to parse.
-    /// - the underlying [`reqwest::Client`] cannot be initialized.
+    /// - the underlying [`reqwest::blocking::Client`] cannot be initialized.
     pub fn build(&self) -> TraduoraResult<Traduora<Authenticated>> {
         let api = self.build_unauthenticated()?;
         Ok(Traduora {
@@ -713,7 +709,7 @@ impl<'h, L> Builder<'h, L> {
 
     fn build_unauthenticated(&self) -> TraduoraResult<Traduora<Unauthenticated>> {
         Ok(Traduora {
-            client: Client::builder()
+            client: reqwest::blocking::Client::builder()
                 .danger_accept_invalid_certs(!self.validate_certs)
                 .build()?,
             rest_url: self.build_rest_url()?,
@@ -723,7 +719,7 @@ impl<'h, L> Builder<'h, L> {
 
     fn build_unauthenticated_async(&self) -> TraduoraResult<AsyncTraduora<Unauthenticated>> {
         Ok(AsyncTraduora {
-            client: AsyncClient::builder()
+            client: reqwest::Client::builder()
                 .danger_accept_invalid_certs(!self.validate_certs)
                 .build()?,
             rest_url: self.build_rest_url()?,

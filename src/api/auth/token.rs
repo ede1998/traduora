@@ -3,7 +3,7 @@
 use http::Method;
 use serde::{Deserialize, Serialize};
 
-use crate::{api::Endpoint, auth::Unauthenticated, query::DefaultModel};
+use crate::{auth::Unauthenticated, query::DefaultModel, BodyError, Endpoint};
 
 /// Request an authentication token for an existing user or project client.
 ///
@@ -14,7 +14,7 @@ use crate::{api::Endpoint, auth::Unauthenticated, query::DefaultModel};
 /// use traduora::{Query, TraduoraError, api::auth::{AccessToken, Token}};
 ///
 /// # fn main() -> Result<(), TraduoraError>{
-/// # let client = traduora::api::doctests::DummyClient;
+/// # let client = traduora::DummyClient;
 /// let token = Token::password("user@traduora.example", "password").query(&client)?;
 /// assert!(!token.access_token.is_empty());
 /// # Ok(())
@@ -108,7 +108,7 @@ impl Endpoint for Token {
         "auth/token".into()
     }
 
-    fn body(&self) -> Result<Option<(&'static str, Vec<u8>)>, crate::api::BodyError> {
+    fn body(&self) -> Result<Option<(&'static str, Vec<u8>)>, BodyError> {
         Ok(Some((
             "application/json",
             serde_json::to_string(self)?.into_bytes(),

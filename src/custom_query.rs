@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 
-use crate::api::{ApiError, AsyncClient, Client};
+use crate::{ApiError, AsyncClient, Client};
 
 /// A trait which represents a query which may be made to a Traduora client.
 ///
@@ -21,7 +21,7 @@ use crate::api::{ApiError, AsyncClient, Client};
 /// }
 ///
 /// # fn main() -> Result<(), TraduoraError> {
-/// # let client = traduora::api::doctests::DummyClient;
+/// # let client = traduora::DummyClient;
 /// let user_info: IdOnlyInfo = Me.query_custom(&client)?;
 /// assert!(!user_info.id.is_empty());
 /// # Ok(())
@@ -61,7 +61,7 @@ where
 /// }
 ///
 /// # async fn main_async() -> Result<(), TraduoraError> {
-/// # let client = traduora::api::doctests::DummyClient;
+/// # let client = traduora::DummyClient;
 /// let user_info: IdOnlyInfo = Me.query_custom_async(&client).await?;
 /// assert!(!user_info.id.is_empty());
 /// # Ok(())

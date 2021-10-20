@@ -1,12 +1,11 @@
+use std::error::Error;
+
 use async_trait::async_trait;
 use bytes::Bytes;
-use http::request::Builder as RequestBuilder;
-use http::Response;
-use std::error::Error;
+use http::{request::Builder as RequestBuilder, Response};
 use url::Url;
 
-use crate::api::ApiError;
-use crate::auth::Scope;
+use crate::{auth::Scope, ApiError};
 
 /// A trait representing a client which can communicate with a Traduora instance via REST.
 pub trait RestClient {
@@ -62,7 +61,7 @@ pub trait AsyncClient: RestClient {
 #[doc(hidden)]
 pub mod doctests {
     use super::*;
-    use crate::{api::ApiError, auth::Authenticated, traduora::RestError};
+    use crate::{auth::Authenticated, traduora::RestError, ApiError};
 
     use super::RestClient;
 
@@ -87,10 +86,7 @@ pub mod doctests {
 
         type AccessLevel = Authenticated;
 
-        fn rest_endpoint(
-            &self,
-            _: &str,
-        ) -> Result<reqwest::Url, crate::api::ApiError<Self::Error>> {
+        fn rest_endpoint(&self, _: &str) -> Result<reqwest::Url, ApiError<Self::Error>> {
             Ok("https:://www.traduora.example".parse()?)
         }
     }
