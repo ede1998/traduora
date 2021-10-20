@@ -19,12 +19,22 @@ pub trait RestClient {
     /// Get the URL for the endpoint for the client.
     ///
     /// This method adds the hostname for the client's target instance.
+    ///
+    /// # Errors
+    /// This method returns an error if it fails to concatenate the
+    /// host name to the specific endpoint.
     fn rest_endpoint(&self, endpoint: &str) -> Result<Url, ApiError<Self::Error>>;
 }
 
 /// A trait representing a client which can communicate with a Traduora instance.
 pub trait Client: RestClient {
     /// Send a REST query.
+    ///
+    /// # Errors
+    /// This method returns an error if
+    /// - fails to prepare the request.
+    /// - the request could not be sent to the server.
+    /// - the [`reqwest::Response`] could not be mapped to an [`http::Response`].
     fn rest(
         &self,
         request: RequestBuilder,
@@ -36,6 +46,12 @@ pub trait Client: RestClient {
 #[async_trait]
 pub trait AsyncClient: RestClient {
     /// Send a REST query asynchronously.
+    ///
+    /// # Errors
+    /// This method returns an error if
+    /// - fails to prepare the request.
+    /// - the request could not be sent to the server.
+    /// - the [`reqwest::Response`] could not be mapped to an [`http::Response`].
     async fn rest_async(
         &self,
         request: RequestBuilder,

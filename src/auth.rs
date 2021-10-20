@@ -37,6 +37,7 @@ pub trait Scope {
     ///
     /// Depending on the token type, this will be either no header or the Authorization header.
     ///
+    /// # Errors
     /// Returns an error if the token string cannot be parsed as a header value.
     fn set_header<'a>(&self, headers: &'a mut HeaderMap) -> Result<&'a mut HeaderMap, AuthError>;
 }

@@ -96,6 +96,13 @@ impl Traduora<Unauthenticated> {
     ///
     /// Calling this method does not query the API.
     ///
+    ///
+    /// # Errors
+    /// This method returns an error if
+    /// - the provided credentials are invalid.
+    /// - the host url fails to parse.
+    /// - the underlying [`reqwest::Client`] cannot be initialized.
+
     /// # Examples
     /// ```
     /// # use traduora::TraduoraError;
@@ -119,6 +126,12 @@ impl Traduora<Unauthenticated> {
     /// # Warning
     /// It is **strongly** recommended to use [`Traduora::new`] instead to force encryption.
     ///
+    /// # Errors
+    /// This method returns an error if
+    /// - the provided credentials are invalid.
+    /// - the host url fails to parse.
+    /// - the underlying [`reqwest::Client`] cannot be initialized.
+    ///
     /// # Examples
     /// ```
     /// # use traduora::TraduoraError;
@@ -141,6 +154,9 @@ impl Traduora<Unauthenticated> {
     /// Tries to authenticate the Traduora client.
     ///
     /// Calling this method queries the Traduora API.
+    ///
+    /// # Errors
+    /// This method returns an error if the provided credentials are invalid.
     ///
     /// # Examples
     /// ```no_run
@@ -170,6 +186,12 @@ impl Traduora<Authenticated> {
     ///
     /// Calling this method queries the Traduora API.
     ///
+    /// # Errors
+    /// This method returns an error if
+    /// - the provided credentials are invalid.
+    /// - the host url fails to parse.
+    /// - the underlying [`reqwest::Client`] cannot be initialized.
+    ///
     /// # Examples
     /// ```no_run
     /// # use traduora::TraduoraError;
@@ -194,6 +216,12 @@ impl Traduora<Authenticated> {
     ///
     /// # Warning
     /// It is **strongly** recommended to use [`Traduora::new`] instead to force encryption.
+    ///
+    /// # Errors
+    /// This method returns an error if
+    /// - the provided credentials are invalid.
+    /// - the host url fails to parse.
+    /// - the underlying [`reqwest::Client`] cannot be initialized.
     ///
     /// # Examples
     /// ```no_run
@@ -337,6 +365,12 @@ impl AsyncTraduora<Unauthenticated> {
     ///
     /// Calling this method does not query the API.
     ///
+    /// # Errors
+    /// This method returns an error if
+    /// - the provided credentials are invalid.
+    /// - the host url fails to parse.
+    /// - the underlying [`reqwest::Client`] cannot be initialized.
+    ///
     /// # Examples
     /// ```
     /// # use traduora::TraduoraError;
@@ -360,6 +394,12 @@ impl AsyncTraduora<Unauthenticated> {
     /// # Warning
     /// It is **strongly** recommended to use [`AsyncTraduora::new`] instead to force encryption.
     ///
+    /// # Errors
+    /// This method returns an error if
+    /// - the provided credentials are invalid.
+    /// - the host url fails to parse.
+    /// - the underlying [`reqwest::Client`] cannot be initialized.
+    ///
     /// # Examples
     /// ```
     /// # use traduora::TraduoraError;
@@ -382,6 +422,9 @@ impl AsyncTraduora<Unauthenticated> {
     /// Tries to authenticate the Traduora client.
     ///
     /// Calling this method queries the Traduora API.
+    ///
+    /// # Errors
+    /// This method returns an error if the provided credentials are invalid.
     ///
     /// # Examples
     /// ```no_run
@@ -411,6 +454,12 @@ impl AsyncTraduora<Authenticated> {
     ///
     /// Calling this method queries the Traduora API.
     ///
+    /// # Errors
+    /// This method returns an error if
+    /// - the provided credentials are invalid.
+    /// - the host url fails to parse.
+    /// - the underlying [`reqwest::Client`] cannot be initialized.
+    ///
     /// # Examples
     /// ```no_run
     /// # use traduora::TraduoraError;
@@ -439,6 +488,12 @@ impl AsyncTraduora<Authenticated> {
     /// # Warning
     /// It is **strongly** recommended to use [`Traduora::new`] instead to force encryption.
     ///
+    /// # Errors
+    /// This method returns an error if
+    /// - the provided credentials are invalid.
+    /// - the host url fails to parse.
+    /// - the underlying [`reqwest::Client`] cannot be initialized.
+    ///
     /// # Examples
     /// ```no_run
     /// # use traduora::TraduoraError;
@@ -462,6 +517,28 @@ impl AsyncTraduora<Authenticated> {
     }
 }
 
+/// Creates a new instance of [`Traduora`] or [`AsyncTraduora`] with custom parameters.
+///
+/// The builder is what the constructors on these types call under the hood.
+///
+/// # Examples
+/// Assume you want to connect to a Traduora instance with encryption
+/// that only has a self-signed certificate and you already stored an
+/// access token somewhere.
+/// ```
+/// use traduora::TraduoraBuilder;
+///
+/// # fn main() -> Result<(), traduora::TraduoraError> {
+/// # let token = "";
+/// let client = TraduoraBuilder::new("localhost:8080")
+///     .use_http(true)
+///     .validate_certs(false)
+///     .with_access_token(token)
+///     .build()?;
+/// # Ok(())
+/// # }
+/// ```
+///
 #[derive(Clone, Debug)]
 #[must_use]
 pub struct Builder<'h, L> {
@@ -472,6 +549,12 @@ pub struct Builder<'h, L> {
 }
 
 impl<'h> Builder<'h, ()> {
+    /// Construct a new builder instance.
+    ///
+    /// The builder is intialized with the following defaults:
+    /// - uses HTTPS
+    /// - validates certificates
+    /// - unauthenticated access
     pub const fn new(host: &'h str) -> Self {
         Self {
             host,
@@ -481,6 +564,11 @@ impl<'h> Builder<'h, ()> {
         }
     }
 
+    /// Adds login information to the builder.
+    ///
+    /// Note that the Traduora API is not queried when calling this
+    /// function. It is queried only when calling [`Builder::build`]
+    /// or [`Builder::build_async`].
     pub const fn authenticate(self, login: Login) -> Builder<'h, Login> {
         Builder {
             host: self.host,
@@ -490,6 +578,11 @@ impl<'h> Builder<'h, ()> {
         }
     }
 
+    /// Adds an access token string to the builder.
+    ///
+    /// Note that the Traduora API won't be queried at all when the
+    /// client is built with this method. The token is assumed to be valid
+    /// and passed to the client without any modifications.
     pub fn with_access_token(self, token: impl Into<String>) -> Builder<'h, String> {
         Builder {
             host: self.host,
@@ -499,21 +592,51 @@ impl<'h> Builder<'h, ()> {
         }
     }
 
+    /// Builds a synchronous client without authentification information.
+    ///
+    /// # Errors
+    /// This method returns an error if
+    /// - the host url fails to parse.
+    /// - the underlying [`reqwest::Client`] cannot be initialized.
     pub fn build(&self) -> TraduoraResult<Traduora<Unauthenticated>> {
         self.build_unauthenticated()
     }
 
+    /// Builds an asynchronous client without authentification information.
+    ///
+    /// # Errors
+    /// This method returns an error if
+    /// - the host url fails to parse.
+    /// - the underlying [`reqwest::Client`] cannot be initialized.
     pub fn build_async(&self) -> TraduoraResult<AsyncTraduora<Unauthenticated>> {
         self.build_unauthenticated_async()
     }
 }
 
 impl<'h> Builder<'h, Login> {
+    /// Builds a synchronous client with authentification information.
+    ///
+    /// Calling this method queries the Traduora API for an access token.
+    ///
+    /// # Errors
+    /// This method returns an error if
+    /// - the provided credentials are invalid.
+    /// - the host url fails to parse.
+    /// - the underlying [`reqwest::Client`] cannot be initialized.
     pub fn build(self) -> TraduoraResult<Traduora<Authenticated>> {
         let api = self.build_unauthenticated()?;
         api.authenticate(&self.login)
     }
 
+    /// Builds an asynchronous client with authentification information.
+    ///
+    /// Calling this method queries the Traduora API for an access token.
+    ///
+    /// # Errors
+    /// This method returns an error if
+    /// - the provided credentials are invalid.
+    /// - the host url fails to parse.
+    /// - the underlying [`reqwest::Client`] cannot be initialized.
     pub async fn build_async(self) -> TraduoraResult<AsyncTraduora<Authenticated>> {
         let api = self.build_unauthenticated_async()?;
         api.authenticate(&self.login).await
@@ -521,6 +644,16 @@ impl<'h> Builder<'h, Login> {
 }
 
 impl<'h> Builder<'h, String> {
+    /// Builds a synchronous client with authentification information.
+    ///
+    /// Calling this method does not query the Traduora API. The access
+    /// token is assumed to be valid. In case it's not, calls to endpoints
+    /// requiring authentification will fail.
+    ///
+    /// # Errors
+    /// This method returns an error if
+    /// - the host url fails to parse.
+    /// - the underlying [`reqwest::Client`] cannot be initialized.
     pub fn build(&self) -> TraduoraResult<Traduora<Authenticated>> {
         let api = self.build_unauthenticated()?;
         Ok(Traduora {
@@ -530,6 +663,16 @@ impl<'h> Builder<'h, String> {
         })
     }
 
+    /// Builds an asynchronous client with authentification information.
+    ///
+    /// Calling this method does not query the Traduora API. The access
+    /// token is assumed to be valid. In case it's not, calls to endpoints
+    /// requiring authentification will fail.
+    ///
+    /// # Errors
+    /// This method returns an error if
+    /// - the host url fails to parse.
+    /// - the underlying [`reqwest::Client`] cannot be initialized.
     pub async fn build_async(&self) -> TraduoraResult<AsyncTraduora<Authenticated>> {
         let api = self.build_unauthenticated_async()?;
         Ok(AsyncTraduora {
@@ -541,11 +684,24 @@ impl<'h> Builder<'h, String> {
 }
 
 impl<'h, L> Builder<'h, L> {
+    /// Decides whether to connect with unencrypted HTTP
+    /// or via HTTPS.
+    ///
+    /// # Warning
+    /// It is **strongly** recommended to use encryption. Otherwise,
+    /// login data will be sent in plain text.
+    /// You can try a self-signed certificate instead, or even better
+    /// a fully valid one.
     pub const fn use_http(mut self, use_http: bool) -> Self {
         self.protocol = if use_http { "http" } else { "https" };
         self
     }
 
+    /// Decides whether the SSL certificates will be validate when
+    /// opening the connection.
+    ///
+    /// # Warning
+    /// It is recommended to just use valid (non-self-signed) certificates.
     pub const fn validate_certs(mut self, validate: bool) -> Self {
         self.validate_certs = validate;
         self

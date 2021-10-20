@@ -25,6 +25,9 @@ pub trait Endpoint {
     /// The body for the endpoint.
     ///
     /// Returns the `Content-Encoding` header for the data as well as the data itself.
+    ///
+    /// # Errors
+    /// This method returns an error if the body could not be serialized to JSON.
     fn body(&self) -> Result<Option<(&'static str, Vec<u8>)>, BodyError> {
         Ok(None)
     }
