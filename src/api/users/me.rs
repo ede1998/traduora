@@ -4,7 +4,7 @@ use crate::{auth::Authenticated, query::DefaultModel, Endpoint};
 
 /// Get the current user's profile.
 ///
-/// **Endpoint** `/api/v1/users/me`
+/// **Endpoint** `GET /api/v1/users/me`
 ///
 /// # Examples
 /// ```no_run
@@ -37,7 +37,7 @@ impl DefaultModel for Me {
 
 /// Default model.
 ///
-/// **Endpoint** `/api/v1/users/me`
+/// **Endpoint** `GET /api/v1/users/me`
 #[derive(Clone, Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UserInfo {

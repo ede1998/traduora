@@ -7,7 +7,7 @@ use crate::{auth::Unauthenticated, query::DefaultModel, BodyError, Endpoint};
 
 /// Request an authentication token for an existing user or project client.
 ///
-/// **Endpoint** `/api/v1/auth/token`
+/// **Endpoint** `POST /api/v1/auth/token`
 ///
 /// # Examples
 /// ```no_run
@@ -128,7 +128,7 @@ impl DefaultModel for Token {
 
 /// Default model.
 ///
-/// **Endpoint** `/api/v1/auth/token`
+/// **Endpoint** `POST /api/v1/auth/token`
 #[derive(Clone, Debug, Default, Deserialize, Hash, Eq, Ord, PartialEq, PartialOrd)]
 pub struct AccessToken {
     /// Authorization information for the client. To be sent in the `Authorization` header;
