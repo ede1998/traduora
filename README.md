@@ -1,10 +1,35 @@
 # Traduora API bindings
 
-Tested against version [v0.19.1](https://github.com/ever-co/ever-traduora/releases/tag/v0.19.1)
+This crate implements API bindings to communicate with a [Traduora](https://traduora.co/) instance.
+You can find the list of implemented endpoints below. Traduora's general API documentation is available [in their
+documentation](https://docs.traduora.co/docs/api/v1/overview) and an (up-to-date) endpoint documentation can be
+found [here](https://docs.traduora.co/docs/api/v1/swagger).
 
+The API was originally implemented for version [v0.19.1](https://github.com/ever-co/ever-traduora/releases/tag/v0.19.1) and
+was also tested with this version. When you're reading this, it's probably not actively maintained anymore, but it should still
+be passively maintained. Feel free to open an issue or a PR and it will probably get answered in a few days.
 
+All endpoints are contained in the [`api`](src/api) module. To use them, you can simply instantiate one, create a `Traduora` client
+and call `endpoint.query(&client)` or the async equivalent with an `AsyncTraduora` client and `endpoint.query_async(&async_client)`.
+On success, the endpoint then returns a struct that is specific to the endpoint, providing the data that was parsed from Traduora's
+response. For more fine-grained control, you can choose your own type to deserialize the response into by calling `endpoint.query_custom(&client)`
+instead. The type just has to implement `serde::DeserializeOwned` and you're good to go.
 
-# Implementation progress
+# Usage examples
+
+Creating a new term:
+```
+//TODO
+```
+
+## Design
+
+The design of this crate is heavily inspired (=outright stolen) from the [GitLab API](https://gitlab.kitware.com/utils/rust-gitlab) crate.
+For details, you can read the excellent blog post [Designing Rust bindings for REST APIs](https://plume.benboeckel.net/~/JustAnotherBlog/designing-rust-bindings-for-rest-ap-is) by Ben Boeckel.
+This crate calls the `Query` and `AsyncQuery` traits of the GitLab crate `CustomQuery` and `AsyncCustomQuery` instead as the normal
+`Query` and `AsyncQuery` traits return a `DefaultModel` type to make the crate easier to use.
+
+## Implementation progress
 
 The endpoints from this list are taken from [here](api.json)
 
@@ -74,3 +99,14 @@ The endpoints from this list are taken from [here](api.json)
 |   ❌   | DELETE | `/api/v1/users/me`                                                                      |                        |
 |   ✅   | GET    | `/api/v1/users/me`                                                                      | [`api::users::Me`]     |
 |   ❌   | PATCH  | `/api/v1/users/me`                                                                      |                        |
+
+## License
+
+Licensed under either of
+
+- Apache License, Version 2.0
+  ([LICENSE-APACHE](LICENSE-Apache-2.0) or <http://www.apache.org/licenses/LICENSE-2.0>)
+- MIT license
+  ([LICENSE-MIT](LICENSE-MIT) or <http://opensource.org/licenses/MIT>)
+
+Your choice.
