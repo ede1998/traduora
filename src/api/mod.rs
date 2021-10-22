@@ -4,6 +4,7 @@
 mod common;
 
 pub mod auth;
+pub mod terms;
 pub mod users;
 
 pub use common::*;

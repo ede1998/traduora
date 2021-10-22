@@ -56,6 +56,13 @@ impl Endpoint for Signup {
     fn endpoint(&self) -> std::borrow::Cow<'static, str> {
         "auth/signup".into()
     }
+
+    fn body(&self) -> Result<Option<(&'static str, Vec<u8>)>, crate::BodyError> {
+        Ok(Some((
+            api::mime_types::JSON,
+            serde_json::to_string(self)?.into_bytes(),
+        )))
+    }
 }
 
 impl DefaultModel for Signup {

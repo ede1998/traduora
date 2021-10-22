@@ -112,7 +112,7 @@ impl Endpoint for Token {
 
     fn body(&self) -> Result<Option<(&'static str, Vec<u8>)>, BodyError> {
         Ok(Some((
-            "application/json",
+            api::mime_types::JSON,
             serde_json::to_string(self)?.into_bytes(),
         )))
     }
