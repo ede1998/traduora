@@ -7,6 +7,8 @@ use crate::{auth::Unauthenticated, query::DefaultModel, Endpoint};
 ///
 /// **Endpoint** `GET /api/v1/auth/providers`
 ///
+/// **Default model** [`AuthProvider`]
+///
 /// # Examples
 /// ```no_run
 /// use traduora::{api::auth::Providers, Query, Traduora, TraduoraError};

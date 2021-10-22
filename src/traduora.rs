@@ -8,6 +8,7 @@ use log::{debug, error};
 use thiserror::Error;
 use url::Url;
 
+use crate::api;
 use crate::auth::{AuthError, Authenticated, Scope, Unauthenticated};
 use crate::{ApiError, AsyncClient, AsyncQuery, Client, Login, Query, RestClient};
 
@@ -579,7 +580,10 @@ impl<'h> Builder<'h, ()> {
     /// Note that the Traduora API won't be queried at all when the
     /// client is built with this method. The token is assumed to be valid
     /// and passed to the client without any modifications.
-    pub fn with_access_token(self, token: impl Into<String>) -> Builder<'h, String> {
+    pub fn with_access_token(
+        self,
+        token: impl Into<api::AccessToken>,
+    ) -> Builder<'h, api::AccessToken> {
         Builder {
             host: self.host,
             protocol: self.protocol,
@@ -639,7 +643,7 @@ impl<'h> Builder<'h, Login> {
     }
 }
 
-impl<'h> Builder<'h, String> {
+impl<'h> Builder<'h, api::AccessToken> {
     /// Builds a synchronous client with authentification information.
     ///
     /// Calling this method does not query the Traduora API. The access

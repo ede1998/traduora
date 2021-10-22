@@ -1,10 +1,12 @@
 use serde::Deserialize;
 
-use crate::{auth::Authenticated, query::DefaultModel, Endpoint};
+use crate::{api, auth::Authenticated, query::DefaultModel, Endpoint};
 
 /// Get the current user's profile.
 ///
 /// **Endpoint** `GET /api/v1/users/me`
+///
+/// **Default model** [`UserInfo`]
 ///
 /// # Examples
 /// ```no_run
@@ -42,7 +44,7 @@ impl DefaultModel for Me {
 #[serde(rename_all = "camelCase")]
 pub struct UserInfo {
     /// Unique id for the user.
-    pub id: String,
+    pub id: api::UserId,
     /// Name that is shown in the GUI.
     pub name: String,
     /// Email address associated with the account and used for login.

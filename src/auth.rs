@@ -15,7 +15,7 @@ use http::{HeaderMap, HeaderValue};
 use std::fmt::Debug;
 use thiserror::Error;
 
-use crate::api::auth::AccessToken;
+use crate::api;
 
 /// The error which is returned from [`Scope::set_header`] when it failed to set the `Authorization` header.
 #[derive(Debug, Error)]
@@ -44,7 +44,7 @@ pub trait Scope {
 
 /// Client is authenticated and has an access token.
 /// This allows calling all endpoints, including those that need authorization.
-pub struct Authenticated(String);
+pub struct Authenticated(api::AccessToken);
 
 /// Client is not authenticated. This means only a small subset of endpoints are available.
 /// An endpoint with this scope can be queried without authentification.
@@ -77,16 +77,16 @@ impl From<Authenticated> for Unauthenticated {
     }
 }
 
-impl From<AccessToken> for Authenticated {
+impl From<api::auth::AccessToken> for Authenticated {
     /// Constructs a new [Authenticated] scope from the given token.
-    fn from(f: AccessToken) -> Self {
+    fn from(f: api::auth::AccessToken) -> Self {
         Self(f.access_token)
     }
 }
 
-impl From<String> for Authenticated {
+impl From<api::AccessToken> for Authenticated {
     /// Constructs a new [Authenticated] scope from the given token string.
-    fn from(f: String) -> Self {
+    fn from(f: api::AccessToken) -> Self {
         Self(f)
     }
 }

@@ -1,11 +1,13 @@
 use http::Method;
 use serde::{Deserialize, Serialize};
 
-use crate::{auth::Unauthenticated, query::DefaultModel, Endpoint};
+use crate::{api, auth::Unauthenticated, query::DefaultModel, Endpoint};
 
 /// Create a new user account.
 ///
 /// **Endpoint** `POST /api/v1/auth/signup`
+///
+/// **Default model** [`NewUser`]
 ///
 /// # Examples
 /// ```no_run
@@ -67,11 +69,11 @@ impl DefaultModel for Signup {
 #[serde(rename_all = "camelCase")]
 pub struct NewUser {
     /// Unique id of the created user.
-    pub id: String,
+    pub id: api::UserId,
     /// Name of the newly created user.
     pub name: String,
     /// Email address of the newly created user.
     pub email: String,
     /// Token to use endpoints that require authentification.
-    pub access_token: String,
+    pub access_token: api::AccessToken,
 }

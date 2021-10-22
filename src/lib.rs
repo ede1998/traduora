@@ -7,6 +7,8 @@ mod client;
 mod custom_query;
 mod endpoint;
 mod error;
+#[macro_use]
+mod macros;
 mod query;
 mod traduora;
 

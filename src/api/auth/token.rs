@@ -3,11 +3,13 @@
 use http::Method;
 use serde::{Deserialize, Serialize};
 
-use crate::{auth::Unauthenticated, query::DefaultModel, BodyError, Endpoint};
+use crate::{api, auth::Unauthenticated, query::DefaultModel, BodyError, Endpoint};
 
 /// Request an authentication token for an existing user or project client.
 ///
 /// **Endpoint** `POST /api/v1/auth/token`
+///
+/// **Default model** [`AccessToken`]
 ///
 /// # Examples
 /// ```no_run
@@ -129,10 +131,10 @@ impl DefaultModel for Token {
 /// Default model.
 ///
 /// **Endpoint** `POST /api/v1/auth/token`
-#[derive(Clone, Debug, Default, Deserialize, Hash, Eq, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, Deserialize, Hash, Eq, Ord, PartialEq, PartialOrd)]
 pub struct AccessToken {
     /// Authorization information for the client. To be sent in the `Authorization` header;
-    pub access_token: String,
+    pub access_token: api::AccessToken,
     /// Number of seconds after which the `access_token` expires.
     /// # Examples
     /// `86400s`
