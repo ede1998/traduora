@@ -7,7 +7,7 @@ use crate::{api, auth::Authenticated, query::DefaultModel, Endpoint};
 ///
 /// **Endpoint** `POST /api/v1/projects/{projectId}/terms`
 ///
-/// **Default model** [`NewUser`]
+/// **Default model** [`Term`]
 ///
 /// # Examples
 /// ```no_run

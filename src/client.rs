@@ -69,6 +69,7 @@ pub mod doctests {
     ///
     /// The implementation is not functional.
     /// The doc tests should be annotated with `no_run`.
+    #[doc(hidden)]
     pub struct DummyClient;
 
     impl Client for DummyClient {

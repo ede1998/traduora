@@ -2,4 +2,4 @@
 
 mod create;
 
-pub use create::CreateTerm;
+pub use create::{CreateTerm, Term};

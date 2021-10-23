@@ -2,7 +2,6 @@
 #![warn(missing_docs)]
 #![allow(clippy::module_name_repetitions)]
 
-mod auth;
 mod client;
 mod custom_query;
 mod endpoint;
@@ -13,6 +12,7 @@ mod query;
 mod traduora;
 
 pub mod api;
+pub mod auth;
 
 pub(crate) use client::RestClient;
 pub(crate) use endpoint::Endpoint;
