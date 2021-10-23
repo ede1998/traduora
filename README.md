@@ -15,6 +15,14 @@ On success, the endpoint then returns a struct that is specific to the endpoint,
 response. For more fine-grained control, you can choose your own type to deserialize the response into by calling `endpoint.query_custom(&client)`
 instead. The type just has to implement `serde::DeserializeOwned` and you're good to go.
 
+Some endpoints require authentication before Traduora allows you to access them.
+This is modelled at type level for this crate. Calling an endpoint requiring authentication without authentication
+leads to a compile-time error instead of erroring only at run time. If you have an `Traduora<Unauthenticated>` instance,
+this means you are not logged in, while a `Traduora<Authenticated>` instance symbolizes an authenticated client.
+This check is not perfect however, so you might still get error related to invalid authentication. This can happen
+if your client is alive for a long time so that its access token expires or if you construct your client by passing the
+access token yourself (see `TraduoraBuilder::with_access_token`).
+
 # Usage examples
 
 Creating a new term:
