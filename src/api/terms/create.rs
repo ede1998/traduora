@@ -11,11 +11,12 @@ use crate::{api, auth::Authenticated, query::DefaultModel, Endpoint};
 ///
 /// # Examples
 /// ```no_run
-/// use traduora::{api::terms::CreateTerm, Query, Traduora, TraduoraError};
+/// use traduora::{api::{ProjectId, terms::CreateTerm}, Login, Query, Traduora, TraduoraError};
 ///
 /// # fn main() -> Result<(), TraduoraError>{
-/// let client = Traduora::new("localhost:8080")?;
-/// let term = CreateTerm::new("this.is.a.new.term").query(&client)?;
+/// let client = Traduora::with_auth("localhost:8080", Login::password("user@test.example", "password"))?;
+/// let some_project_id = ProjectId::new("b1001dd9-e1c0-4fb0-a60d-eaaec304d332");
+/// let term = CreateTerm::new("this.is.a.new.term", some_project_id).query(&client)?;
 /// assert_eq!(term.value, "this.is.a.new.term");
 /// # Ok(())
 /// # }

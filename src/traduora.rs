@@ -523,10 +523,10 @@ impl AsyncTraduora<Authenticated> {
 /// that only has a self-signed certificate and you already stored an
 /// access token somewhere.
 /// ```
-/// use traduora::TraduoraBuilder;
+/// use traduora::{api::AccessToken, TraduoraBuilder};
 ///
 /// # fn main() -> Result<(), traduora::TraduoraError> {
-/// # let token = "";
+/// let token = AccessToken::new("eyJhbGc...................XMywm-zM");
 /// let client = TraduoraBuilder::new("localhost:8080")
 ///     .use_http(true)
 ///     .validate_certs(false)

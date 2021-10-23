@@ -15,7 +15,6 @@ use crate::{api, auth::Authenticated, query::DefaultModel, Endpoint};
 /// # fn main() -> Result<(), TraduoraError>{
 /// # let client = traduora::DummyClient;
 /// let user_info = Me.query(&client)?;
-/// assert!(!user_info.id.is_empty());
 /// # Ok(())
 /// # }
 /// ```

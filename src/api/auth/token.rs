@@ -18,7 +18,6 @@ use crate::{api, auth::Unauthenticated, query::DefaultModel, BodyError, Endpoint
 /// # fn main() -> Result<(), TraduoraError>{
 /// # let client = traduora::DummyClient;
 /// let token = Token::password("user@traduora.example", "password").query(&client)?;
-/// assert!(!token.access_token.is_empty());
 /// # Ok(())
 /// # }
 /// ```
