@@ -12,14 +12,18 @@ use crate::{api, auth::Unauthenticated, query::DefaultModel, BodyError, Endpoint
 /// **Default model** [`AccessToken`]
 ///
 /// # Examples
-/// ```no_run
-/// use traduora::{Query, TraduoraError, api::auth::{AccessToken, Token}};
+/// ```
+/// # use traduora::{TestClient as Traduora, TraduoraError};
+/// use traduora::{api::auth::Token, Query};
 ///
-/// # fn main() -> Result<(), TraduoraError>{
-/// # let client = traduora::DummyClient;
-/// let token = Token::password("user@traduora.example", "password").query(&client)?;
-/// # Ok(())
-/// # }
+/// let client = Traduora::new("localhost:8080")?;
+/// let request = Token::password("tester@mail.example", "letmeinpls");
+/// let token = request.query(&client)?;
+///
+/// assert_eq!(token.token_type, "bearer");
+/// assert_eq!(token.expires_in, "86400s");
+/// assert!(token.access_token.value().starts_with("eyJhbGciOiJIUzI1NiIs"));
+/// # Ok::<(), TraduoraError>(())
 /// ```
 #[derive(Clone, Eq, Ord, Hash, PartialEq, PartialOrd, Serialize)]
 #[serde(tag = "grant_type", rename_all = "snake_case")]

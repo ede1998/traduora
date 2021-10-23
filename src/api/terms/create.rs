@@ -10,16 +10,21 @@ use crate::{api, auth::Authenticated, query::DefaultModel, Endpoint};
 /// **Default model** [`Term`]
 ///
 /// # Examples
-/// ```no_run
-/// use traduora::{api::{ProjectId, terms::CreateTerm}, Login, Query, Traduora, TraduoraError};
+/// ```
+/// # use traduora::{Login, TestClient as Traduora, TraduoraError};
+/// use traduora::{api::{ProjectId, terms::CreateTerm}, Query};
 ///
-/// # fn main() -> Result<(), TraduoraError>{
-/// let client = Traduora::with_auth("localhost:8080", Login::password("user@test.example", "password"))?;
+/// # let login = Login::password("tester@mail.example", "letmeinpls");
+/// let client = Traduora::with_auth("localhost:8080", login)?;
 /// let some_project_id = ProjectId::new("b1001dd9-e1c0-4fb0-a60d-eaaec304d332");
 /// let term = CreateTerm::new("this.is.a.new.term", some_project_id).query(&client)?;
+///
 /// assert_eq!(term.value, "this.is.a.new.term");
-/// # Ok(())
-/// # }
+/// assert!(term.labels.is_empty());
+/// assert_eq!(term.id.value(), "b686f455-b668-40f7-860d-8828263fc8c0");
+/// // assert_eq!(term.date.created, Utc::now());
+/// // assert_eq!(term.date.modified, Utc::now());
+/// # Ok::<(), TraduoraError>(())
 /// ```
 #[derive(Clone, Debug, Eq, Ord, Hash, PartialEq, PartialOrd, Serialize)]
 pub struct CreateTerm {

@@ -1,0 +1,8 @@
+[
+    {
+        "slug": "google",
+        "clientId": "1234567890-abc123def456.apps.googleusercontent.com",
+        "url": "https://accounts.google.com/o/oauth2/v2/auth",
+        "redirectUrl": "https://www.traduora.example/auth/callback"
+    }
+]

@@ -1,0 +1,8 @@
+{
+    "data": {
+        "id": "2916cc62-5080-4b9f-b0ab-82d72e938004",
+        "email": "tester@mail.example",
+        "name": "Tester",
+        "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyOTE2Y2M2Mi01MDgwLTRiOWYtYjBhYi04MmQ3MmU5MzgwMDQiLCJ0eXBlIjoidXNlciIsImlhdCI6MTYzNTAxNjY4MiwiZXhwIjoxNjM1MTAzMDgyfQ.YoKXO3EVdFFwSaipaykBT2-Y18h7QyVzGJJrgOvQea0"
+    }
+}

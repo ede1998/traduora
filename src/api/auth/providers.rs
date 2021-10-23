@@ -5,20 +5,27 @@ use crate::{auth::Unauthenticated, query::DefaultModel, Endpoint};
 
 /// List available external auth providers.
 ///
+/// The exact result depends on what external authentication
+/// providers are configured in the Traduora instance.
+/// By default there are none.
+///
 /// **Endpoint** `GET /api/v1/auth/providers`
 ///
 /// **Default model** [`AuthProvider`]
 ///
 /// # Examples
-/// ```no_run
-/// use traduora::{api::auth::Providers, Query, Traduora, TraduoraError};
+/// ```
+/// # use traduora::{TestClient as Traduora, TraduoraError};
+/// use traduora::{api::auth::Providers, Query};
 ///
-/// # fn main() -> Result<(), TraduoraError>{
 /// let client = Traduora::new("localhost:8080")?;
 /// let providers = Providers.query(&client)?;
-/// println!("Providers: {:?}", providers);
-/// # Ok(())
-/// # }
+///
+/// assert_eq!(providers[0].slug, "google");
+/// assert_eq!(providers[0].client_id, "1234567890-abc123def456.apps.googleusercontent.com");
+/// assert_eq!(providers[0].url.as_str(), "https://accounts.google.com/o/oauth2/v2/auth");
+/// assert_eq!(providers[0].redirect_url.as_str(), "https://www.traduora.example/auth/callback");
+/// # Ok::<(), TraduoraError>(())
 /// ```
 #[derive(Clone, Debug, Eq, Ord, Hash, PartialEq, PartialOrd, Serialize)]
 pub struct Providers;
@@ -37,6 +44,10 @@ impl Endpoint for Providers {
 
 impl DefaultModel for Providers {
     type Model = Vec<AuthProvider>;
+
+    fn map(data: serde_json::Value) -> Result<Self::Model, serde_json::Error> {
+        serde_json::from_value(data)
+    }
 }
 
 /// Default model.
@@ -45,12 +56,14 @@ impl DefaultModel for Providers {
 #[derive(Clone, Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AuthProvider {
-    /// DONT KNOW
+    /// Name of the authentication provider
     pub slug: String,
-    /// DONT KNOW
+    /// The id of the traduora instance in the authentication
+    /// provider.
     pub client_id: String,
-    /// DONT KNOW
-    pub url: String,
-    /// DONT KNOW
-    pub redirect_url: String,
+    /// URL where the authentication with this external provider happens.
+    pub url: url::Url,
+    /// URL that is called after the authentication finishes to
+    /// return back to the Traduora instance.
+    pub redirect_url: url::Url,
 }

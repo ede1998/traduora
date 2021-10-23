@@ -10,16 +10,19 @@ use crate::{api, auth::Unauthenticated, query::DefaultModel, Endpoint};
 /// **Default model** [`NewUser`]
 ///
 /// # Examples
-/// ```no_run
-/// use traduora::{api::auth::Signup, Query, Traduora, TraduoraError};
+/// ```
+/// # use traduora::{TestClient as Traduora, TraduoraError};
+/// use traduora::{api::auth::Signup, Query};
 ///
-/// # fn main() -> Result<(), TraduoraError>{
 /// let client = Traduora::new("localhost:8080")?;
-/// let new_user = Signup::new("tester", "test@traduora.example", "letmeinpls").query(&client)?;
-/// assert_eq!(new_user.email, "test@traduora.example");
-/// assert_eq!(new_user.name, "tester");
-/// # Ok(())
-/// # }
+/// let signup = Signup::new("Tester", "tester@mail.example", "letmeinpls");
+/// let new_user = signup.query(&client)?;
+///
+/// assert_eq!(new_user.name, "Tester");
+/// assert_eq!(new_user.email, "tester@mail.example");
+/// assert_eq!(new_user.id.value(), "2916cc62-5080-4b9f-b0ab-82d72e938004");
+/// assert!(new_user.access_token.value().starts_with("eyJhbGciOiJIUzI1NiIs"));
+/// # Ok::<(), TraduoraError>(())
 /// ```
 #[derive(Clone, Debug, Eq, Ord, Hash, PartialEq, PartialOrd, Serialize)]
 pub struct Signup {

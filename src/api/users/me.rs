@@ -9,14 +9,19 @@ use crate::{api, auth::Authenticated, query::DefaultModel, Endpoint};
 /// **Default model** [`UserInfo`]
 ///
 /// # Examples
-/// ```no_run
-/// use traduora::{Query, TraduoraError, api::users::{Me, UserInfo}};
+/// ```
+/// # use traduora::{TestClient as Traduora, TraduoraError};
+/// use traduora::{api::users::Me, Login, Query};
 ///
-/// # fn main() -> Result<(), TraduoraError>{
-/// # let client = traduora::DummyClient;
+/// let login = Login::password("tester@mail.example", "letmeinpls");
+/// let client = Traduora::with_auth("localhost:8080", login)?;
 /// let user_info = Me.query(&client)?;
-/// # Ok(())
-/// # }
+///
+/// assert_eq!(user_info.name, "Tester");
+/// assert_eq!(user_info.email, "tester@mail.example");
+/// assert_eq!(user_info.num_projects_created, 1);
+/// assert_eq!(user_info.id.value(), "40379230-ced0-43b8-8b78-37c924f491a7");
+/// # Ok::<(), TraduoraError>(())
 /// ```
 pub struct Me;
 

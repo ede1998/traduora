@@ -26,7 +26,9 @@ pub use crate::traduora::AsyncTraduora;
 pub use crate::traduora::Builder as TraduoraBuilder;
 pub use crate::traduora::Traduora;
 pub use crate::traduora::TraduoraError;
-pub use client::{doctests::DummyClient, AsyncClient, Client};
+pub use client::{AsyncClient, Client};
 pub use custom_query::{AsyncCustomQuery, CustomQuery};
 pub use error::{ApiError, BodyError};
 pub use query::{AsyncQuery, Query};
+
+pub use client::doctests::TestClient;

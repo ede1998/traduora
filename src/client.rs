@@ -61,45 +61,102 @@ pub trait AsyncClient: RestClient {
 #[doc(hidden)]
 pub mod doctests {
     use super::*;
-    use crate::{auth::Authenticated, traduora::RestError, ApiError};
+    use crate::{auth::Authenticated, traduora::RestError, ApiError, Login, TraduoraError};
+    use http::{Method, Response};
 
     use super::RestClient;
 
-    /// A dummy client to use in doc tests.
-    ///
-    /// The implementation is not functional.
-    /// The doc tests should be annotated with `no_run`.
-    #[doc(hidden)]
-    pub struct DummyClient;
+    fn generate_response(method: &Method, endpoint: &str) -> Response<Bytes> {
+        let is_match = |wildcard_str: &str| {
+            let parts: Vec<_> = wildcard_str.split('*').collect();
+            match parts.as_slice() {
+                [] => endpoint.is_empty(),
+                [single] => *single == endpoint,
+                [first, middle @ .., last] => {
+                    let mut start = 0;
+                    for m in middle {
+                        start = match endpoint[start..].find(m) {
+                            Some(pos) => pos + m.len(),
+                            None => return false,
+                        };
+                    }
+                    endpoint.starts_with(first) && endpoint.ends_with(last)
+                }
+            }
+        };
 
-    impl Client for DummyClient {
-        fn rest(
-            &self,
-            _: RequestBuilder,
-            _: Vec<u8>,
-        ) -> Result<Response<Bytes>, ApiError<Self::Error>> {
-            Ok(Response::builder().body(Bytes::new()).unwrap())
+        let body = Bytes::from_static(match (method, endpoint) {
+            (&Method::GET, "/api/v1/auth/providers") => include_bytes!("../data/providers.json"),
+            (&Method::POST, "/api/v1/auth/signup") => include_bytes!("../data/signup_user.json"),
+            (&Method::POST, "/api/v1/auth/token") => include_bytes!("../data/access_token.json"),
+            (&Method::POST, _) if is_match("/api/v1/projects/*/terms") => {
+                include_bytes!("../data/new_term.json")
+            }
+            (&Method::GET, "/api/v1/users/me") => include_bytes!("../data/user_info.json"),
+            _ => panic!(
+                "Failed to find appropriate response body for {} {}",
+                method, endpoint
+            ),
+        });
+
+        Response::builder()
+            .body(body)
+            .expect("Failed to build dummy response")
+    }
+
+    /// A dummy client to use in doc tests.
+    /// It does not react to inputs other than
+    /// HTTP method and url and then just
+    /// returns static JSON data for it.
+    #[doc(hidden)]
+    pub struct TestClient {
+        url: String,
+    }
+
+    impl TestClient {
+        /// new method with same signature as normal Traduora
+        /// client so we can hide it in doc tests.
+        pub fn new(host: &str) -> Result<Self, TraduoraError> {
+            Ok(TestClient { url: host.into() })
+        }
+
+        /// with_auth method with same signature as normal Traduora
+        /// client so we can hide it in doc tests.
+        pub fn with_auth(host: &str, _: Login) -> Result<Self, TraduoraError> {
+            Ok(TestClient { url: host.into() })
         }
     }
 
-    impl RestClient for DummyClient {
+    impl Client for TestClient {
+        fn rest(
+            &self,
+            builder: RequestBuilder,
+            _: Vec<u8>,
+        ) -> Result<Response<Bytes>, ApiError<Self::Error>> {
+            let request = builder.body(()).map_err(|e| ApiError::client(e.into()))?;
+            Ok(generate_response(request.method(), request.uri().path()))
+        }
+    }
+
+    impl RestClient for TestClient {
         type Error = RestError;
 
         type AccessLevel = Authenticated;
 
-        fn rest_endpoint(&self, _: &str) -> Result<reqwest::Url, ApiError<Self::Error>> {
-            Ok("https:://www.traduora.example".parse()?)
+        fn rest_endpoint(&self, endpoint: &str) -> Result<reqwest::Url, ApiError<Self::Error>> {
+            Ok(format!("http://{}/api/v1/{}", self.url, endpoint).parse()?)
         }
     }
 
     #[async_trait]
-    impl AsyncClient for DummyClient {
+    impl AsyncClient for TestClient {
         async fn rest_async(
             &self,
-            _: RequestBuilder,
+            builder: RequestBuilder,
             _: Vec<u8>,
         ) -> Result<Response<Bytes>, ApiError<Self::Error>> {
-            Ok(Response::builder().body(Bytes::new()).unwrap())
+            let request = builder.body(()).map_err(|e| ApiError::client(e.into()))?;
+            Ok(generate_response(request.method(), request.uri().path()))
         }
     }
 }

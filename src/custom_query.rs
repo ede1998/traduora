@@ -11,21 +11,27 @@ use crate::{ApiError, AsyncClient, Client};
 /// unexpected model.
 ///
 /// # Examples
-/// ```no_run
+/// ```
+/// # use traduora::{Login, TestClient as Traduora, TraduoraError};
 /// use serde::Deserialize;
-/// use traduora::{CustomQuery, TraduoraError, api::users::Me};
+/// use traduora::{CustomQuery, api::users::Me};
+///
+/// #[derive(Deserialize)]
+/// struct UserDataInfo {
+///     data: IdOnlyInfo,
+/// }
 ///
 /// #[derive(Deserialize)]
 /// struct IdOnlyInfo {
 ///     id: String,
 /// }
 ///
-/// # fn main() -> Result<(), TraduoraError> {
-/// # let client = traduora::DummyClient;
-/// let user_info: IdOnlyInfo = Me.query_custom(&client)?;
-/// assert!(!user_info.id.is_empty());
-/// # Ok(())
-/// # }
+/// # let login = Login::password("user@mail.example", "letmeinpls");
+/// let client = Traduora::with_auth("localhost:8080", login)?;
+/// let user_info: UserDataInfo = Me.query_custom(&client)?;
+///
+/// assert_eq!(user_info.data.id, "40379230-ced0-43b8-8b78-37c924f491a7");
+/// # Ok::<(), TraduoraError>(())
 /// ```
 pub trait CustomQuery<T, C>
 where
@@ -51,9 +57,15 @@ where
 /// unexpected model.
 ///
 /// # Examples
-/// ```no_run
+/// ```
+/// # use traduora::{Login, TestClient as Traduora, TraduoraError};
 /// use serde::Deserialize;
-/// use traduora::{AsyncCustomQuery, TraduoraError, api::users::Me};
+/// use traduora::{AsyncCustomQuery, api::users::Me};
+///
+/// #[derive(Deserialize)]
+/// struct UserDataInfo {
+///     data: IdOnlyInfo,
+/// }
 ///
 /// #[derive(Deserialize)]
 /// struct IdOnlyInfo {
@@ -61,9 +73,11 @@ where
 /// }
 ///
 /// # async fn main_async() -> Result<(), TraduoraError> {
-/// # let client = traduora::DummyClient;
-/// let user_info: IdOnlyInfo = Me.query_custom_async(&client).await?;
-/// assert!(!user_info.id.is_empty());
+/// # let login = Login::password("user@mail.example", "letmeinpls");
+/// let client = Traduora::with_auth("localhost:8080", login)?;
+/// let user_info: UserDataInfo = Me.query_custom_async(&client).await?;
+///
+/// assert_eq!(user_info.data.id, "40379230-ced0-43b8-8b78-37c924f491a7");
 /// # Ok(())
 /// # }
 /// ```
