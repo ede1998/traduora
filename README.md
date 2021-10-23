@@ -18,8 +18,25 @@ instead. The type just has to implement `serde::DeserializeOwned` and you're goo
 # Usage examples
 
 Creating a new term:
-```
-//TODO
+```rust no_run
+use traduora::{
+    api::{terms::CreateTerm, ProjectId},
+    Login, Query, Traduora,
+};
+
+let client = Traduora::with_auth(
+    "localhost:8080",
+    Login::password("user@mail.example", "password"),
+).unwrap();
+let term = CreateTerm::new(
+    "hello.world",
+    ProjectId::new("b1001dd9-e1c0-4fb0-a60d-eaaec304d332"),
+);
+
+let new_term = term.query(&client).unwrap();
+
+assert!(new_term.labels.is_empty());
+assert_eq!("hello.world", new_term.value);
 ```
 
 ## Design
