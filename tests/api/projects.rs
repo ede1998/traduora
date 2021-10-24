@@ -48,3 +48,23 @@ fn get_project() {
     assert_eq!(project.name, PROJECT_NAME);
     assert_eq!(project.description, DESCRIPTION);
 }
+
+/// precondition: project exists.
+#[ignore]
+#[test]
+fn patch_project() {
+    let new_name = PROJECT_NAME.to_uppercase();
+    let new_description = DESCRIPTION.to_uppercase();
+    let client = build_auth_test_client();
+    let endpoint = EditProject::new(
+        "4b915f76-7c81-45a1-b720-b365d271421d".into(),
+        new_name.clone(),
+        new_description.clone(),
+    );
+    let project = endpoint.query(&client).unwrap();
+
+    println!("{:#?}", project);
+    assert_eq!(project.name, new_name);
+    assert_eq!(project.description, new_description);
+    assert_eq!(project.id.value(), "4b915f76-7c81-45a1-b720-b365d271421d");
+}

@@ -117,7 +117,7 @@ The endpoints from this list are taken from [here](api.json)
 |        |        |                                                                                         |                                            |
 |   ❌   | DELETE | `/api/v1/projects/{projectId}`                                                          |                                            |
 |   ✅   | GET    | `/api/v1/projects/{projectId}`                                                          | [`api::projects::ShowProject`]             |
-|   ❌   | PATCH  | `/api/v1/projects/{projectId}`                                                          |                                            |
+|   ✅   | PATCH  | `/api/v1/projects/{projectId}`                                                          | [`api::projects::EditProject`]             |
 |   ✅   | GET    | `/api/v1/projects`                                                                      | [`api::projects::Projects`]                |
 |   ✅   | POST   | `/api/v1/projects`                                                                      | [`api::projects::CreateProject`]           |
 |        |        |                                                                                         |                                            |

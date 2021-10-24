@@ -11,6 +11,7 @@ use crate::api::{AccessDates, ProjectId, Role};
 /// **Endpoint**
 /// - `GET /api/v1/projects`
 /// - `GET /api/v1/projects/{projectId}`
+/// - `PATCH /api/v1/projects/{projectId}`
 /// - `POST /api/v1/projects`
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[serde(rename_all = "camelCase")]

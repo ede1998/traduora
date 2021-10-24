@@ -1,0 +1,14 @@
+{
+    "data": {
+        "id": "1e7dfcea-85ff-4427-9401-aa2bbd99ac80",
+        "name": "Traduora API rust bindings",
+        "description": "Translations for this Traduora API bindings rust crate.",
+        "termsCount": 23,
+        "localesCount": 3,
+        "date": {
+            "created": "2021-10-24T15:14:30.130Z",
+            "modified": "2021-10-24T16:51:49.000Z"
+        },
+        "role": "admin"
+    }
+}
