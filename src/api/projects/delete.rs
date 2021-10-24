@@ -11,10 +11,11 @@ use crate::{api::ProjectId, auth::Authenticated, query::DefaultModel, Endpoint};
 ///
 /// # Examples
 /// ```
-/// # use traduora::{TestClient as Traduora, TraduoraError};
+/// # use traduora::{Login, TestClient as Traduora, TraduoraError};
 /// use traduora::{api::projects::DeleteProject, Query};
 ///
-/// let client = Traduora::new("localhost:8080")?;
+/// # let login = Login::password("tester@mail.example", "letmeinpls");
+/// let client = Traduora::with_auth("localhost:8080", login)?;
 /// let endpoint = DeleteProject("1e7dfcea-85ff-4427-9401-aa2bbd99ac80".into());
 /// endpoint.query(&client)?;
 /// # Ok::<(), TraduoraError>(())

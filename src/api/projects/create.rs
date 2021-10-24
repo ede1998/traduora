@@ -12,11 +12,12 @@ use crate::{api, auth::Authenticated, query::DefaultModel, Endpoint};
 ///
 /// # Examples
 /// ```
-/// # use traduora::{TestClient as Traduora, TraduoraError};
+/// # use traduora::{Login, TestClient as Traduora, TraduoraError};
 /// use chrono::{TimeZone, Utc};
 /// use traduora::{api::{projects::CreateProject, Role}, Query};
 ///
-/// let client = Traduora::new("localhost:8080")?;
+/// # let login = Login::password("tester@mail.example", "letmeinpls");
+/// let client = Traduora::with_auth("localhost:8080", login)?;
 /// let endpoint = CreateProject::new("Traduora API bindings", "Translations for this Traduora API bindings rust crate.");
 /// let project = endpoint.query(&client)?;
 ///

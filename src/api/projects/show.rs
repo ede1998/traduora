@@ -11,11 +11,12 @@ use crate::{api::ProjectId, auth::Authenticated, query::DefaultModel, Endpoint};
 ///
 /// # Examples
 /// ```
-/// # use traduora::{TestClient as Traduora, TraduoraError};
+/// # use traduora::{Login, TestClient as Traduora, TraduoraError};
 /// use chrono::{TimeZone, Utc};
 /// use traduora::{api::{projects::ShowProject, Role}, Query};
 ///
-/// let client = Traduora::new("localhost:8080")?;
+/// # let login = Login::password("tester@mail.example", "letmeinpls");
+/// let client = Traduora::with_auth("localhost:8080", login)?;
 /// let project = ShowProject("b1001dd9-e1c0-4fb0-a60d-eaaec304d332".into()).query(&client)?;
 ///
 /// assert_eq!(project.name, "Traduora API bindings");

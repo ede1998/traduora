@@ -12,11 +12,12 @@ use crate::{auth::Authenticated, query::DefaultModel, Endpoint};
 ///
 /// # Examples
 /// ```
-/// # use traduora::{TestClient as Traduora, TraduoraError};
+/// # use traduora::{Login, TestClient as Traduora, TraduoraError};
 /// use chrono::{TimeZone, Utc};
 /// use traduora::{api::{projects::Projects, Role}, Query};
 ///
-/// let client = Traduora::new("localhost:8080")?;
+/// # let login = Login::password("tester@mail.example", "letmeinpls");
+/// let client = Traduora::with_auth("localhost:8080", login)?;
 /// let projects = Projects.query(&client)?;
 ///
 /// assert_eq!(projects.len(), 2);

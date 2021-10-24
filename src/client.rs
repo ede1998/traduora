@@ -60,8 +60,14 @@ pub trait AsyncClient: RestClient {
 
 #[doc(hidden)]
 pub mod doctests {
+    use std::marker::PhantomData;
+
     use super::*;
-    use crate::{auth::Authenticated, traduora::RestError, ApiError, Login, TraduoraError};
+    use crate::{
+        auth::{Authenticated, Unauthenticated},
+        traduora::RestError,
+        ApiError, Login, TraduoraError,
+    };
     use http::{Method, Response};
 
     use super::RestClient;
@@ -118,29 +124,38 @@ pub mod doctests {
     /// HTTP method and url and then just
     /// returns static JSON data for it.
     #[doc(hidden)]
-    pub struct TestClient {
+    pub struct TestClient<T: Scope> {
         url: String,
+        phantom: PhantomData<T>,
     }
 
-    impl TestClient {
+    impl TestClient<Unauthenticated> {
         /// method with same signature as normal Traduora client so we can hide it in doc tests.
         ///
         /// # Errors
         /// None, always returns ok but tries to match signature with the normal client
         pub fn new(host: &str) -> Result<Self, TraduoraError> {
-            Ok(Self { url: host.into() })
+            Ok(Self {
+                url: host.into(),
+                phantom: PhantomData::default(),
+            })
         }
+    }
 
+    impl TestClient<Authenticated> {
         /// method with same signature as normal Traduora client so we can hide it in doc tests.
         ///
         /// # Errors
         /// None, always returns ok but tries to match signature with the normal client
         pub fn with_auth(host: &str, _: Login) -> Result<Self, TraduoraError> {
-            Ok(Self { url: host.into() })
+            Ok(Self {
+                url: host.into(),
+                phantom: PhantomData::default(),
+            })
         }
     }
 
-    impl Client for TestClient {
+    impl<T: Scope> Client for TestClient<T> {
         fn rest(
             &self,
             builder: RequestBuilder,
@@ -151,7 +166,7 @@ pub mod doctests {
         }
     }
 
-    impl RestClient for TestClient {
+    impl<T: Scope> RestClient for TestClient<T> {
         type Error = RestError;
 
         type AccessLevel = Authenticated;
@@ -162,7 +177,7 @@ pub mod doctests {
     }
 
     #[async_trait]
-    impl AsyncClient for TestClient {
+    impl<T: Scope + Send + Sync + 'static> AsyncClient for TestClient<T> {
         async fn rest_async(
             &self,
             builder: RequestBuilder,
