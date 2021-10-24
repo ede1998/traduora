@@ -116,16 +116,20 @@ pub mod doctests {
     }
 
     impl TestClient {
-        /// new method with same signature as normal Traduora
-        /// client so we can hide it in doc tests.
+        /// method with same signature as normal Traduora client so we can hide it in doc tests.
+        ///
+        /// # Errors
+        /// None, always returns ok but tries to match signature with the normal client
         pub fn new(host: &str) -> Result<Self, TraduoraError> {
-            Ok(TestClient { url: host.into() })
+            Ok(Self { url: host.into() })
         }
 
-        /// with_auth method with same signature as normal Traduora
-        /// client so we can hide it in doc tests.
+        /// method with same signature as normal Traduora client so we can hide it in doc tests.
+        ///
+        /// # Errors
+        /// None, always returns ok but tries to match signature with the normal client
         pub fn with_auth(host: &str, _: Login) -> Result<Self, TraduoraError> {
-            Ok(TestClient { url: host.into() })
+            Ok(Self { url: host.into() })
         }
     }
 

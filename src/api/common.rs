@@ -38,6 +38,10 @@ pub enum Role {
     Viewer,
 }
 
+// False positive in clippy (containing module is glob-exported
+// so pub(crate) is not redundant here):
+// https://github.com/rust-lang/rust-clippy/issues/7862
+#[allow(clippy::redundant_pub_crate)]
 pub(crate) mod mime_types {
     pub const JSON: &str = "application/json";
 }
