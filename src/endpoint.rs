@@ -60,21 +60,21 @@ where
     }
 }
 
-pub fn process_response<T, E, F>(rsp: &Response<Bytes>, mapper: F) -> Result<T, ApiError<E>>
+pub fn process_response<T, E, F>(r: &Response<Bytes>, mapper: F) -> Result<T, ApiError<E>>
 where
     T: DeserializeOwned,
     E: std::error::Error + Send + Sync + 'static,
     F: FnOnce(serde_json::Value) -> Result<T, serde_json::Error>,
 {
-    if rsp.status().is_success() {
-        // try to parse as general JSON or give general parse error
-        let v = serde_json::from_slice(rsp.body())?;
-        // map to desired rust type or give type mapping error
-        mapper(v).map_err(ApiError::data_type::<T>)
+    let fill = Bytes::from("null");
+    let body = if r.body().is_empty() { &fill } else { r.body() };
+    let result_v = serde_json::from_slice(body);
+    if r.status().is_success() {
+        // give general parse error or map to desired rust type or give type mapping error
+        mapper(result_v?).map_err(ApiError::data_type::<T>)
     } else {
         // try to parse error as JSON or give general error
-        let v = serde_json::from_slice(rsp.body())
-            .map_err(|_| ApiError::server_error(rsp.status(), rsp.body()))?;
+        let v = result_v.map_err(|_| ApiError::server_error(r.status(), r.body()))?;
         // give specific error message
         Err(ApiError::from_traduora(v))
     }
