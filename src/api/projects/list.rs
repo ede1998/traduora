@@ -1,7 +1,7 @@
 use http::Method;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 
-use crate::api::{AccessDates, ProjectId, Role};
+use super::Project;
 use crate::{auth::Authenticated, query::DefaultModel, Endpoint};
 
 /// List all projects the current user has any form of access to.
@@ -56,26 +56,4 @@ impl Endpoint for Projects {
 
 impl DefaultModel for Projects {
     type Model = Vec<Project>;
-}
-
-/// Default model.
-///
-/// **Endpoint** `GET /api/v1/projects`
-#[derive(Clone, Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct Project {
-    /// Unique id of the project.
-    pub id: ProjectId,
-    /// Display name for the project.
-    pub name: String,
-    /// More detailed description of what the project is about.
-    pub description: String,
-    /// Number of locales (=languages) that are configured for this project.
-    pub locales_count: u64,
-    /// Number of terms the project owns.
-    pub terms_count: u64,
-    /// Role of the querying user within the project.
-    pub role: Role,
-    /// Time when the project was created and last modified.
-    pub date: AccessDates,
 }

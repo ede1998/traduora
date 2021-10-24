@@ -1,5 +1,9 @@
 //! Contains all project-related endpoints under path `/api/v1/projects`.
 
+mod common;
+mod create;
 mod list;
 
-pub use list::{Project, Projects};
+pub use common::*;
+pub use create::CreateProject;
+pub use list::Projects;
