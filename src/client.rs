@@ -97,6 +97,7 @@ pub mod doctests {
             (&Method::PATCH, _) if is_match("/api/v1/projects/*") => {
                 include_bytes!("../data/edit_project.json")
             }
+            (&Method::DELETE, _) if is_match("/api/v1/projects/*") => b"",
             (&Method::POST, _) if is_match("/api/v1/projects/*/terms") => {
                 include_bytes!("../data/new_term.json")
             }

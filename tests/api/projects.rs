@@ -68,3 +68,12 @@ fn patch_project() {
     assert_eq!(project.description, new_description);
     assert_eq!(project.id.value(), "4b915f76-7c81-45a1-b720-b365d271421d");
 }
+
+/// precondition: project exists.
+#[ignore]
+#[test]
+fn delete_project() {
+    let client = build_auth_test_client();
+    let endpoint = DeleteProject("4b915f76-7c81-45a1-b720-b365d271421d".into());
+    endpoint.query(&client).unwrap();
+}
