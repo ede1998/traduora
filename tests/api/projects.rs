@@ -34,3 +34,17 @@ fn post_create_project() {
     assert_eq!(project.locales_count, 0);
     assert_eq!(project.terms_count, 0);
 }
+
+/// precondition: project exists.
+#[ignore]
+#[test]
+fn get_project() {
+    let client = build_auth_test_client();
+    let project = ShowProject("4b915f76-7c81-45a1-b720-b365d271421d".into())
+        .query(&client)
+        .unwrap();
+
+    println!("{:#?}", project);
+    assert_eq!(project.name, PROJECT_NAME);
+    assert_eq!(project.description, DESCRIPTION);
+}

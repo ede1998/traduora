@@ -26,6 +26,12 @@ macro_rules! impl_wrapper {
             }
         }
 
+        impl From<&str> for $name {
+            fn from(f: &str) -> Self {
+                Self(f.to_string())
+            }
+        }
+
         impl From<$name> for String {
             fn from(f: $name) -> Self {
                 f.0
