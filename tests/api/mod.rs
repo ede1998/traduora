@@ -32,5 +32,6 @@ pub fn build_auth_test_client() -> impl Client<AccessLevel = Authenticated> {
 }
 
 mod auth;
+mod projects;
 mod terms;
 mod users;

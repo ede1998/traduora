@@ -1,4 +1,4 @@
-//! Contains all endpoints under path `/api/v1/auth`
+//! Contains all endpoints under path `/api/v1/auth`.
 
 mod providers;
 mod signup;

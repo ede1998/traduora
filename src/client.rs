@@ -89,6 +89,7 @@ pub mod doctests {
             (&Method::GET, "/api/v1/auth/providers") => include_bytes!("../data/providers.json"),
             (&Method::POST, "/api/v1/auth/signup") => include_bytes!("../data/signup_user.json"),
             (&Method::POST, "/api/v1/auth/token") => include_bytes!("../data/access_token.json"),
+            (&Method::GET, "/api/v1/projects") => include_bytes!("../data/projects.json"),
             (&Method::POST, _) if is_match("/api/v1/projects/*/terms") => {
                 include_bytes!("../data/new_term.json")
             }
