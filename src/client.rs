@@ -95,6 +95,12 @@ pub mod doctests {
             (&Method::GET, "/api/v1/auth/providers") => include_bytes!("../data/providers.json"),
             (&Method::POST, "/api/v1/auth/signup") => include_bytes!("../data/signup_user.json"),
             (&Method::POST, "/api/v1/auth/token") => include_bytes!("../data/access_token.json"),
+            (&Method::GET, _) if is_match("/api/v1/projects/*/terms") => {
+                include_bytes!("../data/terms.json")
+            }
+            (&Method::POST, _) if is_match("/api/v1/projects/*/terms") => {
+                include_bytes!("../data/new_term.json")
+            }
             (&Method::GET, "/api/v1/projects") => include_bytes!("../data/projects.json"),
             (&Method::POST, "/api/v1/projects") => include_bytes!("../data/create_project.json"),
             (&Method::GET, _) if is_match("/api/v1/projects/*") => {
@@ -104,9 +110,6 @@ pub mod doctests {
                 include_bytes!("../data/edit_project.json")
             }
             (&Method::DELETE, _) if is_match("/api/v1/projects/*") => b"",
-            (&Method::POST, _) if is_match("/api/v1/projects/*/terms") => {
-                include_bytes!("../data/new_term.json")
-            }
             (&Method::GET, "/api/v1/users/me") => include_bytes!("../data/user_info.json"),
             _ => panic!(
                 "Failed to find appropriate response body for {} {}",

@@ -1,6 +1,7 @@
 use http::Method;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 
+use super::Term;
 use crate::{api, auth::Authenticated, query::DefaultModel, Endpoint};
 
 /// Add a new project term
@@ -26,7 +27,7 @@ use crate::{api, auth::Authenticated, query::DefaultModel, Endpoint};
 /// // assert_eq!(term.date.modified, Utc::now());
 /// # Ok::<(), TraduoraError>(())
 /// ```
-#[derive(Clone, Debug, Eq, Ord, Hash, PartialEq, PartialOrd, Serialize)]
+#[derive(Clone, Debug, Eq, Ord, Hash, PartialEq, PartialOrd)]
 pub struct CreateTerm {
     /// The string that should become a term.
     pub term: String,
@@ -72,21 +73,4 @@ impl Endpoint for CreateTerm {
 
 impl DefaultModel for CreateTerm {
     type Model = Term;
-}
-
-/// Default model.
-///
-/// **Endpoint** `POST /api/v1/projects/{projectId}/terms`
-#[derive(Clone, Debug, Deserialize, PartialEq, Eq, PartialOrd, Ord, Hash)]
-#[serde(rename_all = "camelCase")]
-pub struct Term {
-    /// Unique id of the created term.
-    pub id: api::TermId,
-    /// The newly created term.
-    pub value: String,
-    /// Labels the term is tagged with.
-    pub labels: Vec<String>,
-    /// Timestamp about creation and last modification
-    /// of this term.
-    pub date: api::AccessDates,
 }

@@ -102,7 +102,7 @@ The endpoints from this list are taken from [here](api.json)
 |        |        |                                                                                         |                                            |
 |   ❌   | DELETE | `/api/v1/projects/{projectId}/terms/{termId}`                                           |                                            |
 |   ❌   | PATCH  | `/api/v1/projects/{projectId}/terms/{termId}`                                           |                                            |
-|   ❌   | GET    | `/api/v1/projects/{projectId}/terms`                                                    |                                            |
+|   ✅   | GET    | `/api/v1/projects/{projectId}/terms`                                                    | [`api::terms::Terms`]                      |
 |   ✅   | POST   | `/api/v1/projects/{projectId}/terms`                                                    | [`api::terms::CreateTerm`]                 |
 |        |        |                                                                                         |                                            |
 |   ❌   | DELETE | `/api/v1/projects/{projectId}/translations/{localeCode}`                                |                                            |

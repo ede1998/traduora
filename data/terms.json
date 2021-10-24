@@ -1,0 +1,22 @@
+{
+    "data": [
+        {
+            "id": "38ba819e-8023-464b-aa1b-6177c149f888",
+            "value": "this.is.a.term",
+            "labels": ["somelabel"],
+            "date": {
+                "created": "2021-10-24T18:43:12.131Z",
+                "modified": "2021-10-24T18:43:12.131Z"
+            }
+        },
+        {
+            "id": "7eafe83d-1448-49ea-8ae0-f8753cbd669c",
+            "value": "this.is.another.term",
+            "labels": [],
+            "date": {
+                "created": "2021-10-24T20:02:07.952Z",
+                "modified": "2021-10-24T20:02:07.952Z"
+            }
+        }
+    ]
+}
