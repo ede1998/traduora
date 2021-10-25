@@ -116,6 +116,7 @@ pub mod doctests {
             (&Method::DELETE, _) if is_match("/api/v1/projects/*") => b"",
             (&Method::GET, "/api/v1/users/me") => include_bytes!("../data/user_info.json"),
             (&Method::DELETE, "/api/v1/users/me") => b"",
+            (&Method::PATCH, "/api/v1/users/me") => include_bytes!("../data/edit_me.json"),
             _ => panic!(
                 "Failed to find appropriate response body for {} {}",
                 method, endpoint
