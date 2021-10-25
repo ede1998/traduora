@@ -100,7 +100,7 @@ The endpoints from this list are taken from [here](api.json)
 |        |        |                                                                                         |                                            |
 |   ❌   | GET    | `/api/v1/projects/{projectId}/stats`                                                    |                                            |
 |        |        |                                                                                         |                                            |
-|   ❌   | DELETE | `/api/v1/projects/{projectId}/terms/{termId}`                                           |                                            |
+|   ✅   | DELETE | `/api/v1/projects/{projectId}/terms/{termId}`                                           | [`api::terms::DeleteTerm`]                 |
 |   ✅   | PATCH  | `/api/v1/projects/{projectId}/terms/{termId}`                                           | [`api::terms::EditTerm`]                   |
 |   ✅   | GET    | `/api/v1/projects/{projectId}/terms`                                                    | [`api::terms::Terms`]                      |
 |   ✅   | POST   | `/api/v1/projects/{projectId}/terms`                                                    | [`api::terms::CreateTerm`]                 |

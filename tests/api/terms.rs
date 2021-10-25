@@ -48,3 +48,13 @@ fn patch_term() {
     println!("{:#?}", edited_term);
     assert_eq!(edited_term.value, "new.term.text.1");
 }
+
+/// precondition; term and project exist.
+#[ignore]
+#[test]
+fn delete_term() {
+    let client = build_auth_test_client();
+    let project = "b1001dd9-e1c0-4fb0-a60d-eaaec304d332".into();
+    let term = "0fa39756-65db-423c-a6d9-534b62fe9ead".into();
+    DeleteTerm::new(project, term).query(&client).unwrap();
+}
