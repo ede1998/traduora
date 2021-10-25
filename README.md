@@ -23,7 +23,7 @@ This check is not perfect however, so you might still get error related to inval
 if your client is alive for a long time so that its access token expires or if you construct your client by passing the
 access token yourself (see `TraduoraBuilder::with_access_token`).
 
-# Usage examples
+## Usage examples
 
 Creating a new term:
 ```rust no_run
