@@ -1,0 +1,22 @@
+{
+    "data": [
+        {
+            "termId": "38ba819e-8023-464b-aa1b-6177c149f888",
+            "value": "My first translation",
+            "labels": ["somelabel"],
+            "date": {
+                "created": "2021-10-25T18:54:16.426Z",
+                "modified": "2021-10-25T18:54:16.426Z"
+            }
+        },
+        {
+            "termId": "7eafe83d-1448-49ea-8ae0-f8753cbd669c",
+            "value": "My second translation",
+            "labels": [],
+            "date": {
+                "created": "2021-10-25T18:54:16.422Z",
+                "modified": "2021-10-25T18:54:21.000Z"
+            }
+        }
+    ]
+}

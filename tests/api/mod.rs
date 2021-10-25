@@ -35,4 +35,5 @@ mod auth;
 mod locales;
 mod projects;
 mod terms;
+mod translations;
 mod users;

@@ -7,6 +7,7 @@ pub mod auth;
 pub mod locales;
 pub mod projects;
 pub mod terms;
+pub mod translations;
 pub mod users;
 
 pub use common::*;
