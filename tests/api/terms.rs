@@ -33,3 +33,18 @@ fn get_terms() {
     assert_eq!(terms[0].value, "hello.world");
     assert!(terms[0].labels.is_empty());
 }
+
+/// precondition: term and project exist.
+#[ignore]
+#[test]
+fn patch_term() {
+    let client = build_auth_test_client();
+    let project = "b1001dd9-e1c0-4fb0-a60d-eaaec304d332".into();
+    let term = "0fa39756-65db-423c-a6d9-534b62fe9ead".into();
+    let edited_term = EditTerm::new(project, term, "new.term.text.1")
+        .query(&client)
+        .unwrap();
+
+    println!("{:#?}", edited_term);
+    assert_eq!(edited_term.value, "new.term.text.1");
+}

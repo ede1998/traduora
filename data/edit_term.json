@@ -1,0 +1,11 @@
+{
+    "data": {
+        "id": "0fa39756-65db-423c-a6d9-534b62fe9ead",
+        "value": "new.term.text",
+        "labels": ["somelabel"],
+        "date": {
+            "created": "2021-10-23T16:12:55.691Z",
+            "modified": "2021-10-25T16:10:16.000Z"
+        }
+    }
+}

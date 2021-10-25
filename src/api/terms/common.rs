@@ -7,6 +7,7 @@ use crate::api;
 /// **Endpoint**
 /// - `POST /api/v1/projects/{projectId}/terms`
 /// - `GET /api/v1/projects/{projectId}/terms`
+/// - `PATCH /api/v1/projects/{projectId}/terms/{termId}`
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[serde(rename_all = "camelCase")]
 pub struct Term {
