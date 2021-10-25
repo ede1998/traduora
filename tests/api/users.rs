@@ -10,3 +10,11 @@ fn get_me() {
     assert_eq!(super::MAIL, user.email);
     assert_eq!("Tester", user.name);
 }
+
+/// precondition: logged in as user
+#[ignore]
+#[test]
+fn delete_me() {
+    let client = build_auth_test_client();
+    DeleteMe.query(&client).unwrap();
+}

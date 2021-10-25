@@ -121,7 +121,7 @@ The endpoints from this list are taken from [here](api.json)
 |   ✅   | GET    | `/api/v1/projects`                                                                      | [`api::projects::Projects`]                |
 |   ✅   | POST   | `/api/v1/projects`                                                                      | [`api::projects::CreateProject`]           |
 |        |        |                                                                                         |                                            |
-|   ❌   | DELETE | `/api/v1/users/me`                                                                      |                                            |
+|   ✅   | DELETE | `/api/v1/users/me`                                                                      | [`api::users::DeleteMe`]                   |
 |   ✅   | GET    | `/api/v1/users/me`                                                                      | [`api::users::Me`]                         |
 |   ❌   | PATCH  | `/api/v1/users/me`                                                                      |                                            |
 
