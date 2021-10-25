@@ -71,7 +71,7 @@ The endpoints from this list are taken from [here](api.json)
 |   ✅   | POST   | `/api/v1/auth/signup`                                                                   | [`api::auth::Signup`]                      |
 |   ✅   | POST   | `/api/v1/auth/token`                                                                    | [`api::auth::Token`]                       |
 |        |        |                                                                                         |                                            |
-|   ❌   | GET    | `/api/v1/locales`                                                                       |                                            |
+|   ✅   | GET    | `/api/v1/locales`                                                                       | [`api::locales::Locales`]                  |
 |        |        |                                                                                         |                                            |
 |   ❌   | POST   | `/api/v1/projects/{projectId}/clients/{clientId}/rotate-secret`                         |                                            |
 |   ❌   | DELETE | `/api/v1/projects/{projectId}/clients/{clientId}`                                       |                                            |
