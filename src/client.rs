@@ -74,21 +74,14 @@ pub mod doctests {
 
     fn generate_response(method: &Method, endpoint: &str) -> Response<Bytes> {
         let is_match = |wildcard_str: &str| {
-            let parts: Vec<_> = wildcard_str.split('*').collect();
-            match parts.as_slice() {
-                [] => endpoint.is_empty(),
-                [single] => *single == endpoint,
-                [first, middle @ .., last] => {
-                    let mut start = 0;
-                    for m in middle {
-                        start = match endpoint[start..].find(m) {
-                            Some(pos) => pos + m.len(),
-                            None => return false,
-                        };
-                    }
-                    endpoint.starts_with(first) && endpoint.ends_with(last)
-                }
-            }
+            let actual_parts: Vec<_> = endpoint.split('/').collect();
+            let expected_parts: Vec<_> = wildcard_str.split('/').collect();
+
+            actual_parts.len() == expected_parts.len()
+                && actual_parts
+                    .into_iter()
+                    .zip(expected_parts)
+                    .all(|(a, e)| e == "*" || a == e)
         };
 
         let body = Bytes::from_static(match (method, endpoint) {
