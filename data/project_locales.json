@@ -1,0 +1,28 @@
+{
+    "data": [
+        {
+            "id": "91ea2d61-8e14-481f-af19-9ae16bbf95a3",
+            "date": {
+                "created": "2021-10-26T20:15:54.194Z",
+                "modified": "2021-10-26T20:15:54.194Z"
+            },
+            "locale": {
+                "code": "de_DE",
+                "region": "Germany",
+                "language": "German"
+            }
+        },
+        {
+            "id": "38c02384-9be0-4308-aac6-056f1d7b0a08",
+            "date": {
+                "created": "2021-10-26T20:16:03.781Z",
+                "modified": "2021-10-26T20:16:03.781Z"
+            },
+            "locale": {
+                "code": "en",
+                "region": "",
+                "language": "English"
+            }
+        }
+    ]
+}

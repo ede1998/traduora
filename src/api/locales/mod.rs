@@ -2,4 +2,4 @@
 
 mod list;
 
-pub use list::{Locale, LocaleCode, AllLocales};
+pub use list::{AllLocales, Locale, LocaleCode};
