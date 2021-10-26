@@ -6,7 +6,7 @@ use traduora::{api::locales::*, Query};
 #[test]
 fn get_locales() {
     let client = build_auth_test_client();
-    let locales = Locales.query(&client).unwrap();
+    let locales = AllLocales.query(&client).unwrap();
 
     println!("{:#?}", locales);
 

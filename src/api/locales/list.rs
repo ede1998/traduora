@@ -12,11 +12,11 @@ use crate::{auth::Authenticated, query::DefaultModel, Endpoint};
 /// # Examples
 /// ```
 /// # use traduora::{Login, TestClient as Traduora, TraduoraError};
-/// use traduora::{api::locales::Locales, Query};
+/// use traduora::{api::locales::AllLocales, Query};
 ///
 /// # let login = Login::password("tester@mail.example", "letmeinpls");
 /// let client = Traduora::with_auth("localhost:8080", login)?;
-/// let locales = Locales.query(&client)?;
+/// let locales = AllLocales.query(&client)?;
 ///
 /// assert!(locales.len() > 500);
 /// let english = locales.iter().find(|l| l.code.value() == "en_US").unwrap();
@@ -25,9 +25,9 @@ use crate::{auth::Authenticated, query::DefaultModel, Endpoint};
 /// # Ok::<(), TraduoraError>(())
 /// ```
 #[derive(Clone, Debug, Eq, Ord, Hash, PartialEq, PartialOrd)]
-pub struct Locales;
+pub struct AllLocales;
 
-impl Endpoint for Locales {
+impl Endpoint for AllLocales {
     type AccessControl = Authenticated;
 
     fn method(&self) -> Method {
@@ -39,7 +39,7 @@ impl Endpoint for Locales {
     }
 }
 
-impl DefaultModel for Locales {
+impl DefaultModel for AllLocales {
     type Model = Vec<Locale>;
 }
 
