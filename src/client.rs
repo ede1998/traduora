@@ -101,6 +101,7 @@ pub mod doctests {
             (&Method::PATCH, _) if is_match("/api/v1/projects/*/translations/*") => {
                 include_bytes!("../data/edit_translation.json")
             }
+            (&Method::DELETE, _) if is_match("/api/v1/projects/*/translations/*") => b"",
             (&Method::GET, _) if is_match("/api/v1/projects/*/translations/*") => {
                 include_bytes!("../data/translations.json")
             }
