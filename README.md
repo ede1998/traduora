@@ -109,7 +109,7 @@ The endpoints from this list are taken from [here](api.json)
 |   ✅   | GET    | `/api/v1/projects/{projectId}/translations/{localeCode}`                                | [`api::translations::Translations`]        |
 |   ✅   | PATCH  | `/api/v1/projects/{projectId}/translations/{localeCode}`                                | [`api::translations::EditTranslation`]     |
 |   ✅   | GET    | `/api/v1/projects/{projectId}/translations`                                             | [`api::translations::Locales`]             |
-|   ❌   | POST   | `/api/v1/projects/{projectId}/translations`                                             |                                            |
+|   ✅   | POST   | `/api/v1/projects/{projectId}/translations`                                             | [`api::translations::CreateLocale`]        |
 |        |        |                                                                                         |                                            |
 |   ❌   | DELETE | `/api/v1/projects/{projectId}/users/{userId}`                                           |                                            |
 |   ❌   | PATCH  | `/api/v1/projects/{projectId}/users/{userId}`                                           |                                            |

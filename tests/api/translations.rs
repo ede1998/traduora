@@ -64,3 +64,15 @@ fn get_project_locales() {
         "38c02384-9be0-4308-aac6-056f1d7b0a08"
     );
 }
+
+#[ignore]
+#[test]
+fn post_project_locale() {
+    let client = build_auth_test_client();
+    let project = "cb6d5506-1762-49f7-9b4d-e4741e30f75d".into();
+    let locale = CreateLocale::new(project, "en_US".into())
+        .query(&client)
+        .unwrap();
+
+    assert_eq!(locale.locale.code.value(), "en_US");
+}

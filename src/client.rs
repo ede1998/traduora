@@ -101,6 +101,9 @@ pub mod doctests {
             (&Method::GET, _) if is_match("/api/v1/projects/*/translations") => {
                 include_bytes!("../data/project_locales.json")
             }
+            (&Method::POST, _) if is_match("/api/v1/projects/*/translations") => {
+                include_bytes!("../data/create_project_locale.json")
+            }
             (&Method::PATCH, _) if is_match("/api/v1/projects/*/translations/*") => {
                 include_bytes!("../data/edit_translation.json")
             }
