@@ -1,7 +1,7 @@
 # Traduora API bindings
 ![Crates.io](https://img.shields.io/crates/v/traduora)
-[![License](https://img.shields.io/badge/license-Apache%202.0-blue?style=flat-square)](https://github.com/clap-rs/clap/blob/master/LICENSE-APACHE)
-[![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](https://github.com/clap-rs/clap/blob/master/LICENSE-MIT)
+![docs.rs](https://img.shields.io/docsrs/traduora)
+![Crates.io](https://img.shields.io/crates/l/traduora)
 [![CI](https://github.com/ede1998/traduora/actions/workflows/rust.yml/badge.svg)](https://github.com/ede1998/traduora/actions/workflows/rust.yml)
 
 
