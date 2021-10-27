@@ -1,0 +1,8 @@
+[licenses]
+allow-osi-fsf-free = "either"
+
+[advisories]
+ignore = [
+    "RUSTSEC-2020-0071", # chrono depends on time
+    "RUSTSEC-2020-0159" # no fix yet in chrono
+]

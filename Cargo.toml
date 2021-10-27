@@ -27,7 +27,7 @@ url = { version = "2.2.2", features = ["serde"] }
 # derive_builder = "0.10.2"
 
 [dev-dependencies]
-simple_logger = "1.13.0"
+env_logger = "0.9.0"
 tokio = { version = "1.12.0", features = ["macros"] }
 
 [features]
