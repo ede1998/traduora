@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 description = "REST API bindings for Traduora, an open-source translation management platform"
 repository = "https://www.github.com/ede1998/traduora"
+homepage = "https://www.github.com/ede1998/traduora"
 keywords = ["REST", "API", "bindings", "traduora", "localization"]
 license = "MIT OR Apache-2.0"
 categories = ["api-bindings", "localization"]
