@@ -1,4 +1,9 @@
 # Traduora API bindings
+![Crates.io](https://img.shields.io/crates/v/traduora)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue?style=flat-square)](https://github.com/clap-rs/clap/blob/master/LICENSE-APACHE)
+[![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](https://github.com/clap-rs/clap/blob/master/LICENSE-MIT)
+[![CI](https://github.com/ede1998/traduora/actions/workflows/rust.yml/badge.svg)](https://github.com/ede1998/traduora/actions/workflows/rust.yml)
+
 
 This crate implements API bindings to communicate with a [Traduora](https://traduora.co/) instance.
 You can find the list of implemented endpoints below. Traduora's general API documentation is available [in their
