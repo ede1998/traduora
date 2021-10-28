@@ -2,6 +2,7 @@
 name = "traduora"
 version = "0.1.0"
 edition = "2021"
+rust-version = "1.56"
 description = "REST API bindings for Traduora, an open-source translation management platform"
 repository = "https://www.github.com/ede1998/traduora"
 homepage = "https://www.github.com/ede1998/traduora"
