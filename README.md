@@ -1,6 +1,6 @@
 # Traduora API bindings
-![Crates.io](https://img.shields.io/crates/v/traduora)
-![docs.rs](https://img.shields.io/docsrs/traduora)
+[![Crates.io](https://img.shields.io/crates/v/traduora)](https://crates.io/crates/traduora)
+[![docs.rs](https://img.shields.io/docsrs/traduora)](https://docs.rs/traduora)
 ![Crates.io](https://img.shields.io/crates/l/traduora)
 [![CI](https://github.com/ede1998/traduora/actions/workflows/rust.yml/badge.svg)](https://github.com/ede1998/traduora/actions/workflows/rust.yml)
 
