@@ -37,10 +37,10 @@ pub struct CreateTerm {
 
 impl CreateTerm {
     /// Creates a new instance of the [`CreateTerm`] endpoint.
-    pub fn new(term: impl Into<String>, project: impl Into<api::ProjectId>) -> Self {
+    pub fn new(term: impl Into<String>, project: api::ProjectId) -> Self {
         Self {
             term: term.into(),
-            project: project.into(),
+            project,
         }
     }
 }

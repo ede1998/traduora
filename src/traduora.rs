@@ -580,15 +580,12 @@ impl<'h> Builder<'h, ()> {
     /// Note that the Traduora API won't be queried at all when the
     /// client is built with this method. The token is assumed to be valid
     /// and passed to the client without any modifications.
-    pub fn with_access_token(
-        self,
-        token: impl Into<api::AccessToken>,
-    ) -> Builder<'h, api::AccessToken> {
+    pub const fn with_access_token(self, login: api::AccessToken) -> Builder<'h, api::AccessToken> {
         Builder {
             host: self.host,
             protocol: self.protocol,
             validate_certs: self.validate_certs,
-            login: token.into(),
+            login,
         }
     }
 
