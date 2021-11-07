@@ -1,6 +1,24 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.2.0] - 2021-11-07
+
+### Features
+
+- Add endpoint POST /api/v1/auth/change-password
+- Upgrade version to v0.2.0 for publishing
+
+### Refactor
+
+- Remove impl Into<> for constructors taking custom wrappers
+
+### Documentation
+
+- Add badges to README
+
+### Build System
+- Set Minimum Supported Rust Version 1.56 to in Cargo.toml
+
 ## [0.1.0] - 2021-10-27
 
 Initial release.
