@@ -32,3 +32,18 @@ fn token() {
     assert_ne!(0, token.expires_in.len());
     assert_eq!("bearer", token.token_type.to_lowercase());
 }
+
+/// precondition: default user exists.
+#[ignore]
+#[test]
+fn change_password() {
+    let client = build_auth_test_client();
+    let password_change = ChangePassword::new(PASSWORD, "muchmoresecure");
+    password_change.query(&client).unwrap();
+    TraduoraBuilder::new(HOST)
+        .use_http(USE_HTTP)
+        .validate_certs(VALIDATE_CERTS)
+        .authenticate(Login::password(MAIL, "muchmoresecure"))
+        .build()
+        .unwrap();
+}

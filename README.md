@@ -68,7 +68,7 @@ The endpoints from this list are taken from [here](api.json)
 
 | Status | Method | Endpoint                                                                                | Type                                       |
 |--------|--------|-----------------------------------------------------------------------------------------|--------------------------------------------|
-|   ❌   | POST   | `/api/v1/auth/change-password`                                                          |                                            |
+|   ✅   | POST   | `/api/v1/auth/change-password`                                                          | [`api::auth::ChangePassword`]              |
 |   ❌   | POST   | `/api/v1/auth/forgot-password`                                                          |                                            |
 |   ✅   | GET    | `/api/v1/auth/providers`                                                                | [`api::auth::Providers`]                   |
 |   ❌   | POST   | `/api/v1/auth/reset-password`                                                           |                                            |

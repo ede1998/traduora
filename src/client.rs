@@ -85,6 +85,7 @@ pub mod doctests {
         };
 
         let body = Bytes::from_static(match (method, endpoint) {
+            (&Method::POST, "/api/v1/auth/change-password") => b"",
             (&Method::GET, "/api/v1/auth/providers") => include_bytes!("../data/providers.json"),
             (&Method::POST, "/api/v1/auth/signup") => include_bytes!("../data/signup_user.json"),
             (&Method::POST, "/api/v1/auth/token") => include_bytes!("../data/access_token.json"),
