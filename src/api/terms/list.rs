@@ -13,7 +13,7 @@ use crate::{api::ProjectId, auth::Authenticated, query::DefaultModel, Endpoint};
 /// ```
 /// # use traduora::{Login, TestClient as Traduora, TraduoraError};
 /// use chrono::{TimeZone, Utc};
-/// use traduora::{api::terms::Terms, Query};
+/// use traduora::{api::terms::Terms, api::labels::Label, Query};
 ///
 /// # let login = Login::password("tester@mail.example", "letmeinpls");
 /// let client = Traduora::with_auth("localhost:8080", login)?;
@@ -21,7 +21,14 @@ use crate::{api::ProjectId, auth::Authenticated, query::DefaultModel, Endpoint};
 ///
 /// assert_eq!(terms.len(), 2);
 /// assert_eq!(terms[0].value, "this.is.a.term");
-/// assert_eq!(terms[0].labels, vec!["somelabel"]);
+/// assert_eq!(
+///     terms[0].labels,
+///     vec![Label {
+///         id: "c16d0fc3-73e6-4962-b8d5-f3054b8ff002".into(),
+///         value: "Example label".into(),
+///         color: "#D81159".into()
+///     }]
+/// );
 /// assert_eq!(terms[0].id.value(), "38ba819e-8023-464b-aa1b-6177c149f888");
 /// assert_eq!(terms[0].date.created, Utc.ymd(2021, 10, 24).and_hms_milli(18, 43, 12, 131));
 /// assert_eq!(terms[0].date.modified, Utc.ymd(2021, 10, 24).and_hms_milli(18, 43, 12, 131));

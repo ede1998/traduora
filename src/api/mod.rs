@@ -4,6 +4,7 @@
 mod common;
 
 pub mod auth;
+pub mod labels;
 pub mod locales;
 pub mod projects;
 pub mod terms;

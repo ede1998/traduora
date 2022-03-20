@@ -16,7 +16,7 @@ pub struct Term {
     /// The newly created term.
     pub value: String,
     /// Labels the term is tagged with.
-    pub labels: Vec<String>,
+    pub labels: Vec<api::labels::Label>,
     /// Timestamp about creation and last modification
     /// of this term.
     pub date: api::AccessDates,
