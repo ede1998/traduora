@@ -1,5 +1,31 @@
 # Changelog
+
 All notable changes to this project will be documented in this file.
+
+## [0.3.0] - 2022-03-20
+
+### Bug Fixes
+
+- [**breaking**] Parse terms with labels correctly
+
+### Documentation
+
+- Add CHANGELOG.md
+- Update CHANGELOG.md for v0.3.0
+
+### Refactor
+
+- Specify full path for Serialize/Deserialize derive macros in helper macro
+
+### Build
+
+- Update dependencies to most recent versions
+
+### Ci
+
+- Add dependabot configuration
+- Inform cargo-deny about license of new version of encoding-rs
+- Bump actions/checkout from 1 to 3
 
 ## [0.2.0] - 2021-11-07
 
