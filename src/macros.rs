@@ -1,6 +1,6 @@
 macro_rules! impl_wrapper {
     ( $name:ident, $doc:expr$(,)? ) => {
-        #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+        #[derive(serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
         #[doc = $doc]
         pub struct $name(String);
 

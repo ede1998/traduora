@@ -1,5 +1,5 @@
 use http::Method;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
 use crate::{
     api::{locales::Locale, AccessDates, ProjectId},
