@@ -6,3 +6,12 @@ ignore = [
     "RUSTSEC-2020-0071", # chrono depends on time
     "RUSTSEC-2020-0159" # no fix yet in chrono
 ]
+
+[[licenses.clarify]]
+# copied from https://github.com/hsivonen/encoding_rs/blob/master/README.md?plain=1#L141-L147
+name = "encoding_rs"
+version = "*"
+expression = "(Apache-2.0 OR MIT) AND BSD-3-Clause"
+license-files = [
+    { path = "COPYRIGHT", hash = 0x39f8ad31 }
+]
