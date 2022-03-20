@@ -3,7 +3,13 @@
         {
             "id": "38ba819e-8023-464b-aa1b-6177c149f888",
             "value": "this.is.a.term",
-            "labels": ["somelabel"],
+            "labels": [
+                {
+                    "id": "c16d0fc3-73e6-4962-b8d5-f3054b8ff002",
+                    "value": "Example label",
+                    "color": "#D81159"
+                }
+            ],
             "date": {
                 "created": "2021-10-24T18:43:12.131Z",
                 "modified": "2021-10-24T18:43:12.131Z"
