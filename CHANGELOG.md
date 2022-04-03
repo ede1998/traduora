@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.0] - 2022-04-03
+
+### Bug Fixes
+
+- [**breaking**] Parse translations with labels correctly
+
+### Documentation
+
+- Update CHANGELOG.md for v0.4.0
+
 ## [0.3.0] - 2022-03-20
 
 ### Bug Fixes
