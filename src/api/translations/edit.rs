@@ -19,7 +19,7 @@ use crate::{
 /// ```
 /// # use traduora::{Login, TestClient as Traduora, TraduoraError};
 /// use chrono::{TimeZone, Utc};
-/// use traduora::{api::{translations::EditTranslation, Role}, Query};
+/// use traduora::{api::{translations::EditTranslation, Role, labels::Label}, Query};
 ///
 /// # let login = Login::password("tester@mail.example", "letmeinpls");
 /// let client = Traduora::with_auth("localhost:8080", login)?;
@@ -30,7 +30,14 @@ use crate::{
 /// let translation = endpoint.query(&client)?;
 ///
 /// assert_eq!(translation.value, "New translation");
-/// assert_eq!(translation.labels, vec!["somelabel"]);
+/// assert_eq!(
+///     translation.labels,
+///     vec![Label {
+///         id: "c16d0fc3-73e6-4962-b8d5-f3054b8ff002".into(),
+///         value: "Example label".into(),
+///         color: "#D81159".into()
+///     }]
+/// );
 /// assert_eq!(translation.term_id.value(), "7eafe83d-1448-49ea-8ae0-f8753cbd669c");
 /// assert_eq!(translation.date.created, Utc.ymd(2021, 10, 25).and_hms_milli(18, 54, 16, 422));
 /// assert_eq!(translation.date.modified, Utc.ymd(2021, 10, 26).and_hms_milli(16, 03, 09, 000));

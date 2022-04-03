@@ -16,7 +16,7 @@ pub struct Translation {
     /// The translation of the term.
     pub value: String,
     /// Labels the term is tagged with.
-    pub labels: Vec<String>,
+    pub labels: Vec<api::labels::Label>,
     /// Timestamp about creation and last modification
     /// of this translation.
     pub date: api::AccessDates,

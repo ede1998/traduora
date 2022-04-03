@@ -2,7 +2,13 @@
     "data": {
         "termId": "7eafe83d-1448-49ea-8ae0-f8753cbd669c",
         "value": "New translation",
-        "labels": ["somelabel"],
+        "labels": [
+            {
+                "id": "c16d0fc3-73e6-4962-b8d5-f3054b8ff002",
+                "value": "Example label",
+                "color": "#D81159"
+            }
+        ],
         "date": {
             "created": "2021-10-25T18:54:16.422Z",
             "modified": "2021-10-26T16:03:09.000Z"
