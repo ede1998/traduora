@@ -16,7 +16,7 @@ categories = ["api-bindings", "localization"]
 async-trait = "0.1.52"
 bytes = "1.1.0"
 chrono = { version = "0.4.19", features = ["serde"] }
-http = "0.2.6"
+http = "1.0.0"
 log = "0.4.14"
 reqwest = { version = "0.11.10", features = ["blocking", "json"] }
 serde = { version = "1.0.136", features = ["derive"] }
